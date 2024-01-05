@@ -4,7 +4,7 @@
 # either 'steam', 'epic' or 'epic_only'
 launcher_preference = "steam"
 # either the path to RLBot.exe or a parent folder of it
-main_executable_path = "../RLBotCS/RLBotCS/bin/Release/"
+main_executable_path = "../core/RLBotCS/bin/Release/"
 
 [match]
 # Number of bots/players which will be spawned.  We support up to max 64.
@@ -28,7 +28,7 @@ auto_save_replay = false
 
 [mutators]
 # "5 Minutes", "10 Minutes", "20 Minutes", "Unlimited"
-match_length = "Unlimited"
+match_length = "5 Minutes"
 # "Unlimited", "1 Goal", "3 Goals", "5 Goals",
 max_score = "Unlimited"
 # "Unlimited", "+5 Max, First Score", "+5 Max, Random Team"
