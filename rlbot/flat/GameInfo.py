@@ -52,35 +52,16 @@ class GameInfo(object):
             return bool(self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos))
         return False
 
-    # True when cars are allowed to move, and during the pause menu. False during replays.
     # GameInfo
-    def IsRoundActive(self):
+    def GameStateType(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
         if o != 0:
-            return bool(self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos))
-        return False
-
-    # True when the clock is paused due to kickoff, but false during kickoff countdown. In other words, it is true
-    # while cars can move during kickoff. Note that if both players sit still, game clock start and this will become false.
-    # GameInfo
-    def IsKickoffPause(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
-        if o != 0:
-            return bool(self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos))
-        return False
-
-    # Turns true after final replay, the moment the 'winner' screen appears. Remains true during next match
-    # countdown. Turns false again the moment the 'choose team' screen appears.
-    # GameInfo
-    def IsMatchEnded(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(16))
-        if o != 0:
-            return bool(self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos))
-        return False
+            return self._tab.Get(flatbuffers.number_types.Int8Flags, o + self._tab.Pos)
+        return 0
 
     # GameInfo
     def WorldGravityZ(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(18))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
         if o != 0:
             return self._tab.Get(flatbuffers.number_types.Float32Flags, o + self._tab.Pos)
         return 0.0
@@ -88,7 +69,7 @@ class GameInfo(object):
     # Game speed multiplier, 1.0 is regular game speed.
     # GameInfo
     def GameSpeed(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(20))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(16))
         if o != 0:
             return self._tab.Get(flatbuffers.number_types.Float32Flags, o + self._tab.Pos)
         return 0.0
@@ -98,13 +79,13 @@ class GameInfo(object):
     # Data type will roll over after 207 days at 120Hz.
     # GameInfo
     def FrameNum(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(22))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(18))
         if o != 0:
             return self._tab.Get(flatbuffers.number_types.Int32Flags, o + self._tab.Pos)
         return 0
 
 def GameInfoStart(builder):
-    builder.StartObject(10)
+    builder.StartObject(8)
 
 def Start(builder):
     GameInfoStart(builder)
@@ -133,38 +114,26 @@ def GameInfoAddIsUnlimitedTime(builder, isUnlimitedTime):
 def AddIsUnlimitedTime(builder, isUnlimitedTime):
     GameInfoAddIsUnlimitedTime(builder, isUnlimitedTime)
 
-def GameInfoAddIsRoundActive(builder, isRoundActive):
-    builder.PrependBoolSlot(4, isRoundActive, 0)
+def GameInfoAddGameStateType(builder, gameStateType):
+    builder.PrependInt8Slot(4, gameStateType, 0)
 
-def AddIsRoundActive(builder, isRoundActive):
-    GameInfoAddIsRoundActive(builder, isRoundActive)
-
-def GameInfoAddIsKickoffPause(builder, isKickoffPause):
-    builder.PrependBoolSlot(5, isKickoffPause, 0)
-
-def AddIsKickoffPause(builder, isKickoffPause):
-    GameInfoAddIsKickoffPause(builder, isKickoffPause)
-
-def GameInfoAddIsMatchEnded(builder, isMatchEnded):
-    builder.PrependBoolSlot(6, isMatchEnded, 0)
-
-def AddIsMatchEnded(builder, isMatchEnded):
-    GameInfoAddIsMatchEnded(builder, isMatchEnded)
+def AddGameStateType(builder, gameStateType):
+    GameInfoAddGameStateType(builder, gameStateType)
 
 def GameInfoAddWorldGravityZ(builder, worldGravityZ):
-    builder.PrependFloat32Slot(7, worldGravityZ, 0.0)
+    builder.PrependFloat32Slot(5, worldGravityZ, 0.0)
 
 def AddWorldGravityZ(builder, worldGravityZ):
     GameInfoAddWorldGravityZ(builder, worldGravityZ)
 
 def GameInfoAddGameSpeed(builder, gameSpeed):
-    builder.PrependFloat32Slot(8, gameSpeed, 0.0)
+    builder.PrependFloat32Slot(6, gameSpeed, 0.0)
 
 def AddGameSpeed(builder, gameSpeed):
     GameInfoAddGameSpeed(builder, gameSpeed)
 
 def GameInfoAddFrameNum(builder, frameNum):
-    builder.PrependInt32Slot(9, frameNum, 0)
+    builder.PrependInt32Slot(7, frameNum, 0)
 
 def AddFrameNum(builder, frameNum):
     GameInfoAddFrameNum(builder, frameNum)
@@ -184,9 +153,7 @@ class GameInfoT(object):
         self.gameTimeRemaining = 0.0  # type: float
         self.isOvertime = False  # type: bool
         self.isUnlimitedTime = False  # type: bool
-        self.isRoundActive = False  # type: bool
-        self.isKickoffPause = False  # type: bool
-        self.isMatchEnded = False  # type: bool
+        self.gameStateType = 0  # type: int
         self.worldGravityZ = 0.0  # type: float
         self.gameSpeed = 0.0  # type: float
         self.frameNum = 0  # type: int
@@ -216,9 +183,7 @@ class GameInfoT(object):
         self.gameTimeRemaining = gameInfo.GameTimeRemaining()
         self.isOvertime = gameInfo.IsOvertime()
         self.isUnlimitedTime = gameInfo.IsUnlimitedTime()
-        self.isRoundActive = gameInfo.IsRoundActive()
-        self.isKickoffPause = gameInfo.IsKickoffPause()
-        self.isMatchEnded = gameInfo.IsMatchEnded()
+        self.gameStateType = gameInfo.GameStateType()
         self.worldGravityZ = gameInfo.WorldGravityZ()
         self.gameSpeed = gameInfo.GameSpeed()
         self.frameNum = gameInfo.FrameNum()
@@ -230,9 +195,7 @@ class GameInfoT(object):
         GameInfoAddGameTimeRemaining(builder, self.gameTimeRemaining)
         GameInfoAddIsOvertime(builder, self.isOvertime)
         GameInfoAddIsUnlimitedTime(builder, self.isUnlimitedTime)
-        GameInfoAddIsRoundActive(builder, self.isRoundActive)
-        GameInfoAddIsKickoffPause(builder, self.isKickoffPause)
-        GameInfoAddIsMatchEnded(builder, self.isMatchEnded)
+        GameInfoAddGameStateType(builder, self.gameStateType)
         GameInfoAddWorldGravityZ(builder, self.worldGravityZ)
         GameInfoAddGameSpeed(builder, self.gameSpeed)
         GameInfoAddFrameNum(builder, self.frameNum)

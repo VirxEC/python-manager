@@ -4,6 +4,7 @@ from rlbot.flat.DesiredCarState import DesiredCarStateT
 from rlbot.flat.DesiredGameState import DesiredGameStateT
 from rlbot.flat.DesiredPhysics import DesiredPhysicsT
 from rlbot.flat.Float import FloatT
+from rlbot.flat.GameStateType import GameStateType
 from rlbot.flat.MatchSettings import MatchSettingsT
 from rlbot.flat.PlayerClass import PlayerClass
 from rlbot.flat.Vector3Partial import Vector3PartialT
@@ -28,7 +29,7 @@ class ValidPacketDetector:
             if (
                 packet is not None
                 and packet.gameInfo is not None
-                and not packet.gameInfo.isMatchEnded
+                and packet.gameInfo.gameStateType != GameStateType.Ended
             ):
                 spawn_ids = set()
                 for k in range(0, self.expected_count):
