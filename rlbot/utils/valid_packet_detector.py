@@ -45,7 +45,6 @@ class ValidPacketDetector:
                     except KeyError:
                         pass
 
-                print("Spawn ids remaining: ", spawn_ids)
                 if len(spawn_ids) == 0 and self.expected_count <= len(packet.players):
                     self.logger.info(
                         "Packets are looking good, all spawn ids accounted for!"
@@ -90,3 +89,4 @@ class ValidPacketDetector:
 def wait_until_valid_packet(match_settings: MatchSettingsT):
     detector = ValidPacketDetector(match_settings)
     detector.wait_until_valid_packet()
+    del detector

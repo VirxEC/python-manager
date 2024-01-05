@@ -1,7 +1,7 @@
 from enum import IntEnum
 from socket import SHUT_WR, socket, timeout
 from threading import Thread
-from time import sleep
+from time import sleep, time
 from typing import Callable
 
 from flatbuffers.builder import Builder
@@ -185,8 +185,17 @@ class SocketRelay:
 
         # Now wait for the other end to send its own shutdown signal.
         try:
+            self.socket.settimeout(0.1)
+            start_time = time()
+
             while True:
                 read_from_socket(self.socket)
+
+                if time() - start_time > 5:
+                    self.logger.warn(
+                        "Socket manager did not receive EOF from RLBot.exe. Forcefully closing socket."
+                    )
+                    break
         except EOFError:
             # We've succeeded with our graceful shutdown.
             pass
