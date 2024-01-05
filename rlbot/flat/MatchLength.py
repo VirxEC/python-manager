@@ -7,4 +7,3 @@ class MatchLength(object):
     Ten_Minutes = 1
     Twenty_Minutes = 2
     Unlimited = 3
-

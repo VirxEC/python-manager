@@ -3,17 +3,23 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
 class RenderGroup(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsRenderGroup(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = RenderGroup()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsRenderGroup(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # RenderGroup
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
@@ -25,7 +31,7 @@ class RenderGroup(object):
             x = self._tab.Vector(o)
             x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 4
             x = self._tab.Indirect(x)
-            from .RenderMessage import RenderMessage
+            from rlbot.flat.RenderMessage import RenderMessage
             obj = RenderMessage()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -38,7 +44,12 @@ class RenderGroup(object):
             return self._tab.VectorLen(o)
         return 0
 
-# /// The id of the render group
+    # RenderGroup
+    def RenderMessagesIsNone(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
+        return o == 0
+
+    # The id of the render group
     # RenderGroup
     def Id(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
@@ -46,8 +57,93 @@ class RenderGroup(object):
             return self._tab.Get(flatbuffers.number_types.Int32Flags, o + self._tab.Pos)
         return 0
 
-def RenderGroupStart(builder): builder.StartObject(2)
-def RenderGroupAddRenderMessages(builder, renderMessages): builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(renderMessages), 0)
-def RenderGroupStartRenderMessagesVector(builder, numElems): return builder.StartVector(4, numElems, 4)
-def RenderGroupAddId(builder, id): builder.PrependInt32Slot(1, id, 0)
-def RenderGroupEnd(builder): return builder.EndObject()
+def RenderGroupStart(builder):
+    builder.StartObject(2)
+
+def Start(builder):
+    RenderGroupStart(builder)
+
+def RenderGroupAddRenderMessages(builder, renderMessages):
+    builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(renderMessages), 0)
+
+def AddRenderMessages(builder, renderMessages):
+    RenderGroupAddRenderMessages(builder, renderMessages)
+
+def RenderGroupStartRenderMessagesVector(builder, numElems):
+    return builder.StartVector(4, numElems, 4)
+
+def StartRenderMessagesVector(builder, numElems):
+    return RenderGroupStartRenderMessagesVector(builder, numElems)
+
+def RenderGroupAddId(builder, id):
+    builder.PrependInt32Slot(1, id, 0)
+
+def AddId(builder, id):
+    RenderGroupAddId(builder, id)
+
+def RenderGroupEnd(builder):
+    return builder.EndObject()
+
+def End(builder):
+    return RenderGroupEnd(builder)
+
+import rlbot.flat.RenderMessage
+try:
+    from typing import List
+except:
+    pass
+
+class RenderGroupT(object):
+
+    # RenderGroupT
+    def __init__(self):
+        self.renderMessages = None  # type: List[rlbot.flat.RenderMessage.RenderMessageT]
+        self.id = 0  # type: int
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        renderGroup = RenderGroup()
+        renderGroup.Init(buf, pos)
+        return cls.InitFromObj(renderGroup)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, renderGroup):
+        x = RenderGroupT()
+        x._UnPack(renderGroup)
+        return x
+
+    # RenderGroupT
+    def _UnPack(self, renderGroup):
+        if renderGroup is None:
+            return
+        if not renderGroup.RenderMessagesIsNone():
+            self.renderMessages = []
+            for i in range(renderGroup.RenderMessagesLength()):
+                if renderGroup.RenderMessages(i) is None:
+                    self.renderMessages.append(None)
+                else:
+                    renderMessage_ = rlbot.flat.RenderMessage.RenderMessageT.InitFromObj(renderGroup.RenderMessages(i))
+                    self.renderMessages.append(renderMessage_)
+        self.id = renderGroup.Id()
+
+    # RenderGroupT
+    def Pack(self, builder):
+        if self.renderMessages is not None:
+            renderMessageslist = []
+            for i in range(len(self.renderMessages)):
+                renderMessageslist.append(self.renderMessages[i].Pack(builder))
+            RenderGroupStartRenderMessagesVector(builder, len(self.renderMessages))
+            for i in reversed(range(len(self.renderMessages))):
+                builder.PrependUOffsetTRelative(renderMessageslist[i])
+            renderMessages = builder.EndVector()
+        RenderGroupStart(builder)
+        if self.renderMessages is not None:
+            RenderGroupAddRenderMessages(builder, renderMessages)
+        RenderGroupAddId(builder, self.id)
+        renderGroup = RenderGroupEnd(builder)
+        return renderGroup

@@ -11,4 +11,3 @@ class RumbleOption(object):
     Spring_Loaded = 5
     Spikes_Only = 6
     Spike_Rush = 7
-

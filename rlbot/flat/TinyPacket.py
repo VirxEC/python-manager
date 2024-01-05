@@ -3,18 +3,24 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
-# /// A minimal version of the game tick packet, useful when bandwidth needs to be conserved.
+# A minimal version of the game tick packet, useful when bandwidth needs to be conserved.
 class TinyPacket(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsTinyPacket(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = TinyPacket()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsTinyPacket(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # TinyPacket
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
@@ -26,7 +32,7 @@ class TinyPacket(object):
             x = self._tab.Vector(o)
             x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 4
             x = self._tab.Indirect(x)
-            from .TinyPlayer import TinyPlayer
+            from rlbot.flat.TinyPlayer import TinyPlayer
             obj = TinyPlayer()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -40,18 +46,113 @@ class TinyPacket(object):
         return 0
 
     # TinyPacket
+    def PlayersIsNone(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
+        return o == 0
+
+    # TinyPacket
     def Ball(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
         if o != 0:
             x = self._tab.Indirect(o + self._tab.Pos)
-            from .TinyBall import TinyBall
+            from rlbot.flat.TinyBall import TinyBall
             obj = TinyBall()
             obj.Init(self._tab.Bytes, x)
             return obj
         return None
 
-def TinyPacketStart(builder): builder.StartObject(2)
-def TinyPacketAddPlayers(builder, players): builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(players), 0)
-def TinyPacketStartPlayersVector(builder, numElems): return builder.StartVector(4, numElems, 4)
-def TinyPacketAddBall(builder, ball): builder.PrependUOffsetTRelativeSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(ball), 0)
-def TinyPacketEnd(builder): return builder.EndObject()
+def TinyPacketStart(builder):
+    builder.StartObject(2)
+
+def Start(builder):
+    TinyPacketStart(builder)
+
+def TinyPacketAddPlayers(builder, players):
+    builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(players), 0)
+
+def AddPlayers(builder, players):
+    TinyPacketAddPlayers(builder, players)
+
+def TinyPacketStartPlayersVector(builder, numElems):
+    return builder.StartVector(4, numElems, 4)
+
+def StartPlayersVector(builder, numElems):
+    return TinyPacketStartPlayersVector(builder, numElems)
+
+def TinyPacketAddBall(builder, ball):
+    builder.PrependUOffsetTRelativeSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(ball), 0)
+
+def AddBall(builder, ball):
+    TinyPacketAddBall(builder, ball)
+
+def TinyPacketEnd(builder):
+    return builder.EndObject()
+
+def End(builder):
+    return TinyPacketEnd(builder)
+
+import rlbot.flat.TinyBall
+import rlbot.flat.TinyPlayer
+try:
+    from typing import List, Optional
+except:
+    pass
+
+class TinyPacketT(object):
+
+    # TinyPacketT
+    def __init__(self):
+        self.players = None  # type: List[rlbot.flat.TinyPlayer.TinyPlayerT]
+        self.ball = None  # type: Optional[rlbot.flat.TinyBall.TinyBallT]
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        tinyPacket = TinyPacket()
+        tinyPacket.Init(buf, pos)
+        return cls.InitFromObj(tinyPacket)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, tinyPacket):
+        x = TinyPacketT()
+        x._UnPack(tinyPacket)
+        return x
+
+    # TinyPacketT
+    def _UnPack(self, tinyPacket):
+        if tinyPacket is None:
+            return
+        if not tinyPacket.PlayersIsNone():
+            self.players = []
+            for i in range(tinyPacket.PlayersLength()):
+                if tinyPacket.Players(i) is None:
+                    self.players.append(None)
+                else:
+                    tinyPlayer_ = rlbot.flat.TinyPlayer.TinyPlayerT.InitFromObj(tinyPacket.Players(i))
+                    self.players.append(tinyPlayer_)
+        if tinyPacket.Ball() is not None:
+            self.ball = rlbot.flat.TinyBall.TinyBallT.InitFromObj(tinyPacket.Ball())
+
+    # TinyPacketT
+    def Pack(self, builder):
+        if self.players is not None:
+            playerslist = []
+            for i in range(len(self.players)):
+                playerslist.append(self.players[i].Pack(builder))
+            TinyPacketStartPlayersVector(builder, len(self.players))
+            for i in reversed(range(len(self.players))):
+                builder.PrependUOffsetTRelative(playerslist[i])
+            players = builder.EndVector()
+        if self.ball is not None:
+            ball = self.ball.Pack(builder)
+        TinyPacketStart(builder)
+        if self.players is not None:
+            TinyPacketAddPlayers(builder, players)
+        if self.ball is not None:
+            TinyPacketAddBall(builder, ball)
+        tinyPacket = TinyPacketEnd(builder)
+        return tinyPacket

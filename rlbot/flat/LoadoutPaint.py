@@ -3,18 +3,24 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
-# /// Specification for 'painted' items. See https://github.com/RLBot/RLBot/wiki/Bot-Customization
+# Specification for 'painted' items. See https://github.com/RLBot/RLBot/wiki/Bot-Customization
 class LoadoutPaint(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsLoadoutPaint(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = LoadoutPaint()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsLoadoutPaint(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # LoadoutPaint
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
@@ -75,13 +81,120 @@ class LoadoutPaint(object):
             return self._tab.Get(flatbuffers.number_types.Int32Flags, o + self._tab.Pos)
         return 0
 
-def LoadoutPaintStart(builder): builder.StartObject(8)
-def LoadoutPaintAddCarPaintId(builder, carPaintId): builder.PrependInt32Slot(0, carPaintId, 0)
-def LoadoutPaintAddDecalPaintId(builder, decalPaintId): builder.PrependInt32Slot(1, decalPaintId, 0)
-def LoadoutPaintAddWheelsPaintId(builder, wheelsPaintId): builder.PrependInt32Slot(2, wheelsPaintId, 0)
-def LoadoutPaintAddBoostPaintId(builder, boostPaintId): builder.PrependInt32Slot(3, boostPaintId, 0)
-def LoadoutPaintAddAntennaPaintId(builder, antennaPaintId): builder.PrependInt32Slot(4, antennaPaintId, 0)
-def LoadoutPaintAddHatPaintId(builder, hatPaintId): builder.PrependInt32Slot(5, hatPaintId, 0)
-def LoadoutPaintAddTrailsPaintId(builder, trailsPaintId): builder.PrependInt32Slot(6, trailsPaintId, 0)
-def LoadoutPaintAddGoalExplosionPaintId(builder, goalExplosionPaintId): builder.PrependInt32Slot(7, goalExplosionPaintId, 0)
-def LoadoutPaintEnd(builder): return builder.EndObject()
+def LoadoutPaintStart(builder):
+    builder.StartObject(8)
+
+def Start(builder):
+    LoadoutPaintStart(builder)
+
+def LoadoutPaintAddCarPaintId(builder, carPaintId):
+    builder.PrependInt32Slot(0, carPaintId, 0)
+
+def AddCarPaintId(builder, carPaintId):
+    LoadoutPaintAddCarPaintId(builder, carPaintId)
+
+def LoadoutPaintAddDecalPaintId(builder, decalPaintId):
+    builder.PrependInt32Slot(1, decalPaintId, 0)
+
+def AddDecalPaintId(builder, decalPaintId):
+    LoadoutPaintAddDecalPaintId(builder, decalPaintId)
+
+def LoadoutPaintAddWheelsPaintId(builder, wheelsPaintId):
+    builder.PrependInt32Slot(2, wheelsPaintId, 0)
+
+def AddWheelsPaintId(builder, wheelsPaintId):
+    LoadoutPaintAddWheelsPaintId(builder, wheelsPaintId)
+
+def LoadoutPaintAddBoostPaintId(builder, boostPaintId):
+    builder.PrependInt32Slot(3, boostPaintId, 0)
+
+def AddBoostPaintId(builder, boostPaintId):
+    LoadoutPaintAddBoostPaintId(builder, boostPaintId)
+
+def LoadoutPaintAddAntennaPaintId(builder, antennaPaintId):
+    builder.PrependInt32Slot(4, antennaPaintId, 0)
+
+def AddAntennaPaintId(builder, antennaPaintId):
+    LoadoutPaintAddAntennaPaintId(builder, antennaPaintId)
+
+def LoadoutPaintAddHatPaintId(builder, hatPaintId):
+    builder.PrependInt32Slot(5, hatPaintId, 0)
+
+def AddHatPaintId(builder, hatPaintId):
+    LoadoutPaintAddHatPaintId(builder, hatPaintId)
+
+def LoadoutPaintAddTrailsPaintId(builder, trailsPaintId):
+    builder.PrependInt32Slot(6, trailsPaintId, 0)
+
+def AddTrailsPaintId(builder, trailsPaintId):
+    LoadoutPaintAddTrailsPaintId(builder, trailsPaintId)
+
+def LoadoutPaintAddGoalExplosionPaintId(builder, goalExplosionPaintId):
+    builder.PrependInt32Slot(7, goalExplosionPaintId, 0)
+
+def AddGoalExplosionPaintId(builder, goalExplosionPaintId):
+    LoadoutPaintAddGoalExplosionPaintId(builder, goalExplosionPaintId)
+
+def LoadoutPaintEnd(builder):
+    return builder.EndObject()
+
+def End(builder):
+    return LoadoutPaintEnd(builder)
+
+
+class LoadoutPaintT(object):
+
+    # LoadoutPaintT
+    def __init__(self):
+        self.carPaintId = 0  # type: int
+        self.decalPaintId = 0  # type: int
+        self.wheelsPaintId = 0  # type: int
+        self.boostPaintId = 0  # type: int
+        self.antennaPaintId = 0  # type: int
+        self.hatPaintId = 0  # type: int
+        self.trailsPaintId = 0  # type: int
+        self.goalExplosionPaintId = 0  # type: int
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        loadoutPaint = LoadoutPaint()
+        loadoutPaint.Init(buf, pos)
+        return cls.InitFromObj(loadoutPaint)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, loadoutPaint):
+        x = LoadoutPaintT()
+        x._UnPack(loadoutPaint)
+        return x
+
+    # LoadoutPaintT
+    def _UnPack(self, loadoutPaint):
+        if loadoutPaint is None:
+            return
+        self.carPaintId = loadoutPaint.CarPaintId()
+        self.decalPaintId = loadoutPaint.DecalPaintId()
+        self.wheelsPaintId = loadoutPaint.WheelsPaintId()
+        self.boostPaintId = loadoutPaint.BoostPaintId()
+        self.antennaPaintId = loadoutPaint.AntennaPaintId()
+        self.hatPaintId = loadoutPaint.HatPaintId()
+        self.trailsPaintId = loadoutPaint.TrailsPaintId()
+        self.goalExplosionPaintId = loadoutPaint.GoalExplosionPaintId()
+
+    # LoadoutPaintT
+    def Pack(self, builder):
+        LoadoutPaintStart(builder)
+        LoadoutPaintAddCarPaintId(builder, self.carPaintId)
+        LoadoutPaintAddDecalPaintId(builder, self.decalPaintId)
+        LoadoutPaintAddWheelsPaintId(builder, self.wheelsPaintId)
+        LoadoutPaintAddBoostPaintId(builder, self.boostPaintId)
+        LoadoutPaintAddAntennaPaintId(builder, self.antennaPaintId)
+        LoadoutPaintAddHatPaintId(builder, self.hatPaintId)
+        LoadoutPaintAddTrailsPaintId(builder, self.trailsPaintId)
+        LoadoutPaintAddGoalExplosionPaintId(builder, self.goalExplosionPaintId)
+        loadoutPaint = LoadoutPaintEnd(builder)
+        return loadoutPaint

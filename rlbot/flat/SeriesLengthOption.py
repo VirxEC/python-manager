@@ -7,4 +7,3 @@ class SeriesLengthOption(object):
     Three_Games = 1
     Five_Games = 2
     Seven_Games = 3
-

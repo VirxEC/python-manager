@@ -3,17 +3,23 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
 class RotatorPartial(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsRotatorPartial(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = RotatorPartial()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsRotatorPartial(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # RotatorPartial
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
@@ -23,7 +29,7 @@ class RotatorPartial(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
         if o != 0:
             x = o + self._tab.Pos
-            from .Float import Float
+            from rlbot.flat.Float import Float
             obj = Float()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -34,7 +40,7 @@ class RotatorPartial(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
         if o != 0:
             x = o + self._tab.Pos
-            from .Float import Float
+            from rlbot.flat.Float import Float
             obj = Float()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -45,14 +51,95 @@ class RotatorPartial(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
         if o != 0:
             x = o + self._tab.Pos
-            from .Float import Float
+            from rlbot.flat.Float import Float
             obj = Float()
             obj.Init(self._tab.Bytes, x)
             return obj
         return None
 
-def RotatorPartialStart(builder): builder.StartObject(3)
-def RotatorPartialAddPitch(builder, pitch): builder.PrependStructSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(pitch), 0)
-def RotatorPartialAddYaw(builder, yaw): builder.PrependStructSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(yaw), 0)
-def RotatorPartialAddRoll(builder, roll): builder.PrependStructSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(roll), 0)
-def RotatorPartialEnd(builder): return builder.EndObject()
+def RotatorPartialStart(builder):
+    builder.StartObject(3)
+
+def Start(builder):
+    RotatorPartialStart(builder)
+
+def RotatorPartialAddPitch(builder, pitch):
+    builder.PrependStructSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(pitch), 0)
+
+def AddPitch(builder, pitch):
+    RotatorPartialAddPitch(builder, pitch)
+
+def RotatorPartialAddYaw(builder, yaw):
+    builder.PrependStructSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(yaw), 0)
+
+def AddYaw(builder, yaw):
+    RotatorPartialAddYaw(builder, yaw)
+
+def RotatorPartialAddRoll(builder, roll):
+    builder.PrependStructSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(roll), 0)
+
+def AddRoll(builder, roll):
+    RotatorPartialAddRoll(builder, roll)
+
+def RotatorPartialEnd(builder):
+    return builder.EndObject()
+
+def End(builder):
+    return RotatorPartialEnd(builder)
+
+import rlbot.flat.Float
+try:
+    from typing import Optional
+except:
+    pass
+
+class RotatorPartialT(object):
+
+    # RotatorPartialT
+    def __init__(self):
+        self.pitch = None  # type: Optional[rlbot.flat.Float.FloatT]
+        self.yaw = None  # type: Optional[rlbot.flat.Float.FloatT]
+        self.roll = None  # type: Optional[rlbot.flat.Float.FloatT]
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        rotatorPartial = RotatorPartial()
+        rotatorPartial.Init(buf, pos)
+        return cls.InitFromObj(rotatorPartial)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, rotatorPartial):
+        x = RotatorPartialT()
+        x._UnPack(rotatorPartial)
+        return x
+
+    # RotatorPartialT
+    def _UnPack(self, rotatorPartial):
+        if rotatorPartial is None:
+            return
+        if rotatorPartial.Pitch() is not None:
+            self.pitch = rlbot.flat.Float.FloatT.InitFromObj(rotatorPartial.Pitch())
+        if rotatorPartial.Yaw() is not None:
+            self.yaw = rlbot.flat.Float.FloatT.InitFromObj(rotatorPartial.Yaw())
+        if rotatorPartial.Roll() is not None:
+            self.roll = rlbot.flat.Float.FloatT.InitFromObj(rotatorPartial.Roll())
+
+    # RotatorPartialT
+    def Pack(self, builder):
+        RotatorPartialStart(builder)
+        if self.pitch is not None:
+            pitch = self.pitch.Pack(builder)
+            RotatorPartialAddPitch(builder, pitch)
+        if self.yaw is not None:
+            yaw = self.yaw.Pack(builder)
+            RotatorPartialAddYaw(builder, yaw)
+        if self.roll is not None:
+            roll = self.roll.Pack(builder)
+            RotatorPartialAddRoll(builder, roll)
+        rotatorPartial = RotatorPartialEnd(builder)
+        return rotatorPartial

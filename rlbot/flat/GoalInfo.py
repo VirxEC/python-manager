@@ -3,17 +3,23 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
 class GoalInfo(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsGoalInfo(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = GoalInfo()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsGoalInfo(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # GoalInfo
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
@@ -30,7 +36,7 @@ class GoalInfo(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
         if o != 0:
             x = o + self._tab.Pos
-            from .Vector3 import Vector3
+            from rlbot.flat.Vector3 import Vector3
             obj = Vector3()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -41,7 +47,7 @@ class GoalInfo(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
         if o != 0:
             x = o + self._tab.Pos
-            from .Vector3 import Vector3
+            from rlbot.flat.Vector3 import Vector3
             obj = Vector3()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -61,10 +67,104 @@ class GoalInfo(object):
             return self._tab.Get(flatbuffers.number_types.Float32Flags, o + self._tab.Pos)
         return 0.0
 
-def GoalInfoStart(builder): builder.StartObject(5)
-def GoalInfoAddTeamNum(builder, teamNum): builder.PrependInt32Slot(0, teamNum, 0)
-def GoalInfoAddLocation(builder, location): builder.PrependStructSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(location), 0)
-def GoalInfoAddDirection(builder, direction): builder.PrependStructSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(direction), 0)
-def GoalInfoAddWidth(builder, width): builder.PrependFloat32Slot(3, width, 0.0)
-def GoalInfoAddHeight(builder, height): builder.PrependFloat32Slot(4, height, 0.0)
-def GoalInfoEnd(builder): return builder.EndObject()
+def GoalInfoStart(builder):
+    builder.StartObject(5)
+
+def Start(builder):
+    GoalInfoStart(builder)
+
+def GoalInfoAddTeamNum(builder, teamNum):
+    builder.PrependInt32Slot(0, teamNum, 0)
+
+def AddTeamNum(builder, teamNum):
+    GoalInfoAddTeamNum(builder, teamNum)
+
+def GoalInfoAddLocation(builder, location):
+    builder.PrependStructSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(location), 0)
+
+def AddLocation(builder, location):
+    GoalInfoAddLocation(builder, location)
+
+def GoalInfoAddDirection(builder, direction):
+    builder.PrependStructSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(direction), 0)
+
+def AddDirection(builder, direction):
+    GoalInfoAddDirection(builder, direction)
+
+def GoalInfoAddWidth(builder, width):
+    builder.PrependFloat32Slot(3, width, 0.0)
+
+def AddWidth(builder, width):
+    GoalInfoAddWidth(builder, width)
+
+def GoalInfoAddHeight(builder, height):
+    builder.PrependFloat32Slot(4, height, 0.0)
+
+def AddHeight(builder, height):
+    GoalInfoAddHeight(builder, height)
+
+def GoalInfoEnd(builder):
+    return builder.EndObject()
+
+def End(builder):
+    return GoalInfoEnd(builder)
+
+import rlbot.flat.Vector3
+try:
+    from typing import Optional
+except:
+    pass
+
+class GoalInfoT(object):
+
+    # GoalInfoT
+    def __init__(self):
+        self.teamNum = 0  # type: int
+        self.location = None  # type: Optional[rlbot.flat.Vector3.Vector3T]
+        self.direction = None  # type: Optional[rlbot.flat.Vector3.Vector3T]
+        self.width = 0.0  # type: float
+        self.height = 0.0  # type: float
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        goalInfo = GoalInfo()
+        goalInfo.Init(buf, pos)
+        return cls.InitFromObj(goalInfo)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, goalInfo):
+        x = GoalInfoT()
+        x._UnPack(goalInfo)
+        return x
+
+    # GoalInfoT
+    def _UnPack(self, goalInfo):
+        if goalInfo is None:
+            return
+        self.teamNum = goalInfo.TeamNum()
+        if goalInfo.Location() is not None:
+            self.location = rlbot.flat.Vector3.Vector3T.InitFromObj(goalInfo.Location())
+        if goalInfo.Direction() is not None:
+            self.direction = rlbot.flat.Vector3.Vector3T.InitFromObj(goalInfo.Direction())
+        self.width = goalInfo.Width()
+        self.height = goalInfo.Height()
+
+    # GoalInfoT
+    def Pack(self, builder):
+        GoalInfoStart(builder)
+        GoalInfoAddTeamNum(builder, self.teamNum)
+        if self.location is not None:
+            location = self.location.Pack(builder)
+            GoalInfoAddLocation(builder, location)
+        if self.direction is not None:
+            direction = self.direction.Pack(builder)
+            GoalInfoAddDirection(builder, direction)
+        GoalInfoAddWidth(builder, self.width)
+        GoalInfoAddHeight(builder, self.height)
+        goalInfo = GoalInfoEnd(builder)
+        return goalInfo

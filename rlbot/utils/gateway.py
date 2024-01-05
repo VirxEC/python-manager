@@ -44,7 +44,6 @@ def launch(main_executable_path: Path):
         print(str(e))
 
     directory, path = find_main_executable_path(main_executable_path)
-    DEFAULT_LOGGER.info(f"Launching RLBot binary at {path} with port {port}")
 
     if path is None or not os.access(path, os.F_OK):
         raise FileNotFoundError(

@@ -3,17 +3,23 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
 class QuickChatMessages(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsQuickChatMessages(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = QuickChatMessages()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsQuickChatMessages(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # QuickChatMessages
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
@@ -25,7 +31,7 @@ class QuickChatMessages(object):
             x = self._tab.Vector(o)
             x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 4
             x = self._tab.Indirect(x)
-            from .QuickChat import QuickChat
+            from rlbot.flat.QuickChat import QuickChat
             obj = QuickChat()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -38,7 +44,89 @@ class QuickChatMessages(object):
             return self._tab.VectorLen(o)
         return 0
 
-def QuickChatMessagesStart(builder): builder.StartObject(1)
-def QuickChatMessagesAddMessages(builder, messages): builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(messages), 0)
-def QuickChatMessagesStartMessagesVector(builder, numElems): return builder.StartVector(4, numElems, 4)
-def QuickChatMessagesEnd(builder): return builder.EndObject()
+    # QuickChatMessages
+    def MessagesIsNone(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
+        return o == 0
+
+def QuickChatMessagesStart(builder):
+    builder.StartObject(1)
+
+def Start(builder):
+    QuickChatMessagesStart(builder)
+
+def QuickChatMessagesAddMessages(builder, messages):
+    builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(messages), 0)
+
+def AddMessages(builder, messages):
+    QuickChatMessagesAddMessages(builder, messages)
+
+def QuickChatMessagesStartMessagesVector(builder, numElems):
+    return builder.StartVector(4, numElems, 4)
+
+def StartMessagesVector(builder, numElems):
+    return QuickChatMessagesStartMessagesVector(builder, numElems)
+
+def QuickChatMessagesEnd(builder):
+    return builder.EndObject()
+
+def End(builder):
+    return QuickChatMessagesEnd(builder)
+
+import rlbot.flat.QuickChat
+try:
+    from typing import List
+except:
+    pass
+
+class QuickChatMessagesT(object):
+
+    # QuickChatMessagesT
+    def __init__(self):
+        self.messages = None  # type: List[rlbot.flat.QuickChat.QuickChatT]
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        quickChatMessages = QuickChatMessages()
+        quickChatMessages.Init(buf, pos)
+        return cls.InitFromObj(quickChatMessages)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, quickChatMessages):
+        x = QuickChatMessagesT()
+        x._UnPack(quickChatMessages)
+        return x
+
+    # QuickChatMessagesT
+    def _UnPack(self, quickChatMessages):
+        if quickChatMessages is None:
+            return
+        if not quickChatMessages.MessagesIsNone():
+            self.messages = []
+            for i in range(quickChatMessages.MessagesLength()):
+                if quickChatMessages.Messages(i) is None:
+                    self.messages.append(None)
+                else:
+                    quickChat_ = rlbot.flat.QuickChat.QuickChatT.InitFromObj(quickChatMessages.Messages(i))
+                    self.messages.append(quickChat_)
+
+    # QuickChatMessagesT
+    def Pack(self, builder):
+        if self.messages is not None:
+            messageslist = []
+            for i in range(len(self.messages)):
+                messageslist.append(self.messages[i].Pack(builder))
+            QuickChatMessagesStartMessagesVector(builder, len(self.messages))
+            for i in reversed(range(len(self.messages))):
+                builder.PrependUOffsetTRelative(messageslist[i])
+            messages = builder.EndVector()
+        QuickChatMessagesStart(builder)
+        if self.messages is not None:
+            QuickChatMessagesAddMessages(builder, messages)
+        quickChatMessages = QuickChatMessagesEnd(builder)
+        return quickChatMessages

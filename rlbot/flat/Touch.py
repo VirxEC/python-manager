@@ -3,30 +3,36 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
 class Touch(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsTouch(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = Touch()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsTouch(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # Touch
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
 
-# /// The name of the player involved with the touch.
+    # The name of the player involved with the touch.
     # Touch
     def PlayerName(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
         if o != 0:
             return self._tab.String(o + self._tab.Pos)
-        return bytes()
+        return None
 
-# /// Seconds that had elapsed in the game when the touch occurred.
+    # Seconds that had elapsed in the game when the touch occurred.
     # Touch
     def GameSeconds(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
@@ -34,31 +40,31 @@ class Touch(object):
             return self._tab.Get(flatbuffers.number_types.Float32Flags, o + self._tab.Pos)
         return 0.0
 
-# /// The point of contact for the touch.
+    # The point of contact for the touch.
     # Touch
     def Location(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
         if o != 0:
             x = o + self._tab.Pos
-            from .Vector3 import Vector3
+            from rlbot.flat.Vector3 import Vector3
             obj = Vector3()
             obj.Init(self._tab.Bytes, x)
             return obj
         return None
 
-# /// The direction of the touch.
+    # The direction of the touch.
     # Touch
     def Normal(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
         if o != 0:
             x = o + self._tab.Pos
-            from .Vector3 import Vector3
+            from rlbot.flat.Vector3 import Vector3
             obj = Vector3()
             obj.Init(self._tab.Bytes, x)
             return obj
         return None
 
-# /// The Team which the touch belongs to, 0 for blue 1 for orange.
+    # The Team which the touch belongs to, 0 for blue 1 for orange.
     # Touch
     def Team(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
@@ -66,7 +72,7 @@ class Touch(object):
             return self._tab.Get(flatbuffers.number_types.Int32Flags, o + self._tab.Pos)
         return 0
 
-# /// The index of the player involved with the touch.
+    # The index of the player involved with the touch.
     # Touch
     def PlayerIndex(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
@@ -74,11 +80,116 @@ class Touch(object):
             return self._tab.Get(flatbuffers.number_types.Int32Flags, o + self._tab.Pos)
         return 0
 
-def TouchStart(builder): builder.StartObject(6)
-def TouchAddPlayerName(builder, playerName): builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(playerName), 0)
-def TouchAddGameSeconds(builder, gameSeconds): builder.PrependFloat32Slot(1, gameSeconds, 0.0)
-def TouchAddLocation(builder, location): builder.PrependStructSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(location), 0)
-def TouchAddNormal(builder, normal): builder.PrependStructSlot(3, flatbuffers.number_types.UOffsetTFlags.py_type(normal), 0)
-def TouchAddTeam(builder, team): builder.PrependInt32Slot(4, team, 0)
-def TouchAddPlayerIndex(builder, playerIndex): builder.PrependInt32Slot(5, playerIndex, 0)
-def TouchEnd(builder): return builder.EndObject()
+def TouchStart(builder):
+    builder.StartObject(6)
+
+def Start(builder):
+    TouchStart(builder)
+
+def TouchAddPlayerName(builder, playerName):
+    builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(playerName), 0)
+
+def AddPlayerName(builder, playerName):
+    TouchAddPlayerName(builder, playerName)
+
+def TouchAddGameSeconds(builder, gameSeconds):
+    builder.PrependFloat32Slot(1, gameSeconds, 0.0)
+
+def AddGameSeconds(builder, gameSeconds):
+    TouchAddGameSeconds(builder, gameSeconds)
+
+def TouchAddLocation(builder, location):
+    builder.PrependStructSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(location), 0)
+
+def AddLocation(builder, location):
+    TouchAddLocation(builder, location)
+
+def TouchAddNormal(builder, normal):
+    builder.PrependStructSlot(3, flatbuffers.number_types.UOffsetTFlags.py_type(normal), 0)
+
+def AddNormal(builder, normal):
+    TouchAddNormal(builder, normal)
+
+def TouchAddTeam(builder, team):
+    builder.PrependInt32Slot(4, team, 0)
+
+def AddTeam(builder, team):
+    TouchAddTeam(builder, team)
+
+def TouchAddPlayerIndex(builder, playerIndex):
+    builder.PrependInt32Slot(5, playerIndex, 0)
+
+def AddPlayerIndex(builder, playerIndex):
+    TouchAddPlayerIndex(builder, playerIndex)
+
+def TouchEnd(builder):
+    return builder.EndObject()
+
+def End(builder):
+    return TouchEnd(builder)
+
+import rlbot.flat.Vector3
+try:
+    from typing import Optional
+except:
+    pass
+
+class TouchT(object):
+
+    # TouchT
+    def __init__(self):
+        self.playerName = None  # type: str
+        self.gameSeconds = 0.0  # type: float
+        self.location = None  # type: Optional[rlbot.flat.Vector3.Vector3T]
+        self.normal = None  # type: Optional[rlbot.flat.Vector3.Vector3T]
+        self.team = 0  # type: int
+        self.playerIndex = 0  # type: int
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        touch = Touch()
+        touch.Init(buf, pos)
+        return cls.InitFromObj(touch)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, touch):
+        x = TouchT()
+        x._UnPack(touch)
+        return x
+
+    # TouchT
+    def _UnPack(self, touch):
+        if touch is None:
+            return
+        self.playerName = touch.PlayerName()
+        self.gameSeconds = touch.GameSeconds()
+        if touch.Location() is not None:
+            self.location = rlbot.flat.Vector3.Vector3T.InitFromObj(touch.Location())
+        if touch.Normal() is not None:
+            self.normal = rlbot.flat.Vector3.Vector3T.InitFromObj(touch.Normal())
+        self.team = touch.Team()
+        self.playerIndex = touch.PlayerIndex()
+
+    # TouchT
+    def Pack(self, builder):
+        if self.playerName is not None:
+            playerName = builder.CreateString(self.playerName)
+        TouchStart(builder)
+        if self.playerName is not None:
+            TouchAddPlayerName(builder, playerName)
+        TouchAddGameSeconds(builder, self.gameSeconds)
+        if self.location is not None:
+            location = self.location.Pack(builder)
+            TouchAddLocation(builder, location)
+        if self.normal is not None:
+            normal = self.normal.Pack(builder)
+            TouchAddNormal(builder, normal)
+        TouchAddTeam(builder, self.team)
+        TouchAddPlayerIndex(builder, self.playerIndex)
+        touch = TouchEnd(builder)
+        return touch

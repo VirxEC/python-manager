@@ -3,17 +3,23 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
 class DesiredPhysics(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsDesiredPhysics(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = DesiredPhysics()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsDesiredPhysics(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # DesiredPhysics
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
@@ -23,7 +29,7 @@ class DesiredPhysics(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
         if o != 0:
             x = self._tab.Indirect(o + self._tab.Pos)
-            from .Vector3Partial import Vector3Partial
+            from rlbot.flat.Vector3Partial import Vector3Partial
             obj = Vector3Partial()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -34,7 +40,7 @@ class DesiredPhysics(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
         if o != 0:
             x = self._tab.Indirect(o + self._tab.Pos)
-            from .RotatorPartial import RotatorPartial
+            from rlbot.flat.RotatorPartial import RotatorPartial
             obj = RotatorPartial()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -45,7 +51,7 @@ class DesiredPhysics(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
         if o != 0:
             x = self._tab.Indirect(o + self._tab.Pos)
-            from .Vector3Partial import Vector3Partial
+            from rlbot.flat.Vector3Partial import Vector3Partial
             obj = Vector3Partial()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -56,15 +62,112 @@ class DesiredPhysics(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
         if o != 0:
             x = self._tab.Indirect(o + self._tab.Pos)
-            from .Vector3Partial import Vector3Partial
+            from rlbot.flat.Vector3Partial import Vector3Partial
             obj = Vector3Partial()
             obj.Init(self._tab.Bytes, x)
             return obj
         return None
 
-def DesiredPhysicsStart(builder): builder.StartObject(4)
-def DesiredPhysicsAddLocation(builder, location): builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(location), 0)
-def DesiredPhysicsAddRotation(builder, rotation): builder.PrependUOffsetTRelativeSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(rotation), 0)
-def DesiredPhysicsAddVelocity(builder, velocity): builder.PrependUOffsetTRelativeSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(velocity), 0)
-def DesiredPhysicsAddAngularVelocity(builder, angularVelocity): builder.PrependUOffsetTRelativeSlot(3, flatbuffers.number_types.UOffsetTFlags.py_type(angularVelocity), 0)
-def DesiredPhysicsEnd(builder): return builder.EndObject()
+def DesiredPhysicsStart(builder):
+    builder.StartObject(4)
+
+def Start(builder):
+    DesiredPhysicsStart(builder)
+
+def DesiredPhysicsAddLocation(builder, location):
+    builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(location), 0)
+
+def AddLocation(builder, location):
+    DesiredPhysicsAddLocation(builder, location)
+
+def DesiredPhysicsAddRotation(builder, rotation):
+    builder.PrependUOffsetTRelativeSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(rotation), 0)
+
+def AddRotation(builder, rotation):
+    DesiredPhysicsAddRotation(builder, rotation)
+
+def DesiredPhysicsAddVelocity(builder, velocity):
+    builder.PrependUOffsetTRelativeSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(velocity), 0)
+
+def AddVelocity(builder, velocity):
+    DesiredPhysicsAddVelocity(builder, velocity)
+
+def DesiredPhysicsAddAngularVelocity(builder, angularVelocity):
+    builder.PrependUOffsetTRelativeSlot(3, flatbuffers.number_types.UOffsetTFlags.py_type(angularVelocity), 0)
+
+def AddAngularVelocity(builder, angularVelocity):
+    DesiredPhysicsAddAngularVelocity(builder, angularVelocity)
+
+def DesiredPhysicsEnd(builder):
+    return builder.EndObject()
+
+def End(builder):
+    return DesiredPhysicsEnd(builder)
+
+import rlbot.flat.RotatorPartial
+import rlbot.flat.Vector3Partial
+try:
+    from typing import Optional
+except:
+    pass
+
+class DesiredPhysicsT(object):
+
+    # DesiredPhysicsT
+    def __init__(self):
+        self.location = None  # type: Optional[rlbot.flat.Vector3Partial.Vector3PartialT]
+        self.rotation = None  # type: Optional[rlbot.flat.RotatorPartial.RotatorPartialT]
+        self.velocity = None  # type: Optional[rlbot.flat.Vector3Partial.Vector3PartialT]
+        self.angularVelocity = None  # type: Optional[rlbot.flat.Vector3Partial.Vector3PartialT]
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        desiredPhysics = DesiredPhysics()
+        desiredPhysics.Init(buf, pos)
+        return cls.InitFromObj(desiredPhysics)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, desiredPhysics):
+        x = DesiredPhysicsT()
+        x._UnPack(desiredPhysics)
+        return x
+
+    # DesiredPhysicsT
+    def _UnPack(self, desiredPhysics):
+        if desiredPhysics is None:
+            return
+        if desiredPhysics.Location() is not None:
+            self.location = rlbot.flat.Vector3Partial.Vector3PartialT.InitFromObj(desiredPhysics.Location())
+        if desiredPhysics.Rotation() is not None:
+            self.rotation = rlbot.flat.RotatorPartial.RotatorPartialT.InitFromObj(desiredPhysics.Rotation())
+        if desiredPhysics.Velocity() is not None:
+            self.velocity = rlbot.flat.Vector3Partial.Vector3PartialT.InitFromObj(desiredPhysics.Velocity())
+        if desiredPhysics.AngularVelocity() is not None:
+            self.angularVelocity = rlbot.flat.Vector3Partial.Vector3PartialT.InitFromObj(desiredPhysics.AngularVelocity())
+
+    # DesiredPhysicsT
+    def Pack(self, builder):
+        if self.location is not None:
+            location = self.location.Pack(builder)
+        if self.rotation is not None:
+            rotation = self.rotation.Pack(builder)
+        if self.velocity is not None:
+            velocity = self.velocity.Pack(builder)
+        if self.angularVelocity is not None:
+            angularVelocity = self.angularVelocity.Pack(builder)
+        DesiredPhysicsStart(builder)
+        if self.location is not None:
+            DesiredPhysicsAddLocation(builder, location)
+        if self.rotation is not None:
+            DesiredPhysicsAddRotation(builder, rotation)
+        if self.velocity is not None:
+            DesiredPhysicsAddVelocity(builder, velocity)
+        if self.angularVelocity is not None:
+            DesiredPhysicsAddAngularVelocity(builder, angularVelocity)
+        desiredPhysics = DesiredPhysicsEnd(builder)
+        return desiredPhysics

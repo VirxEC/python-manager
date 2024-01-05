@@ -3,17 +3,23 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
 class CylinderShape(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsCylinderShape(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = CylinderShape()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsCylinderShape(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # CylinderShape
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
@@ -32,7 +38,66 @@ class CylinderShape(object):
             return self._tab.Get(flatbuffers.number_types.Float32Flags, o + self._tab.Pos)
         return 0.0
 
-def CylinderShapeStart(builder): builder.StartObject(2)
-def CylinderShapeAddDiameter(builder, diameter): builder.PrependFloat32Slot(0, diameter, 0.0)
-def CylinderShapeAddHeight(builder, height): builder.PrependFloat32Slot(1, height, 0.0)
-def CylinderShapeEnd(builder): return builder.EndObject()
+def CylinderShapeStart(builder):
+    builder.StartObject(2)
+
+def Start(builder):
+    CylinderShapeStart(builder)
+
+def CylinderShapeAddDiameter(builder, diameter):
+    builder.PrependFloat32Slot(0, diameter, 0.0)
+
+def AddDiameter(builder, diameter):
+    CylinderShapeAddDiameter(builder, diameter)
+
+def CylinderShapeAddHeight(builder, height):
+    builder.PrependFloat32Slot(1, height, 0.0)
+
+def AddHeight(builder, height):
+    CylinderShapeAddHeight(builder, height)
+
+def CylinderShapeEnd(builder):
+    return builder.EndObject()
+
+def End(builder):
+    return CylinderShapeEnd(builder)
+
+
+class CylinderShapeT(object):
+
+    # CylinderShapeT
+    def __init__(self):
+        self.diameter = 0.0  # type: float
+        self.height = 0.0  # type: float
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        cylinderShape = CylinderShape()
+        cylinderShape.Init(buf, pos)
+        return cls.InitFromObj(cylinderShape)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, cylinderShape):
+        x = CylinderShapeT()
+        x._UnPack(cylinderShape)
+        return x
+
+    # CylinderShapeT
+    def _UnPack(self, cylinderShape):
+        if cylinderShape is None:
+            return
+        self.diameter = cylinderShape.Diameter()
+        self.height = cylinderShape.Height()
+
+    # CylinderShapeT
+    def Pack(self, builder):
+        CylinderShapeStart(builder)
+        CylinderShapeAddDiameter(builder, self.diameter)
+        CylinderShapeAddHeight(builder, self.height)
+        cylinderShape = CylinderShapeEnd(builder)
+        return cylinderShape

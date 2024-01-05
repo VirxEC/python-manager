@@ -7,4 +7,3 @@ class BoostStrengthOption(object):
     OneAndAHalf = 1
     Two = 2
     Ten = 3
-

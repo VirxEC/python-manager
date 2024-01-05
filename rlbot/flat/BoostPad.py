@@ -3,17 +3,23 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
 class BoostPad(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsBoostPad(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = BoostPad()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsBoostPad(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # BoostPad
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
@@ -23,7 +29,7 @@ class BoostPad(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
         if o != 0:
             x = o + self._tab.Pos
-            from .Vector3 import Vector3
+            from rlbot.flat.Vector3 import Vector3
             obj = Vector3()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -33,10 +39,77 @@ class BoostPad(object):
     def IsFullBoost(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
         if o != 0:
-            return self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos)
-        return 0
+            return bool(self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos))
+        return False
 
-def BoostPadStart(builder): builder.StartObject(2)
-def BoostPadAddLocation(builder, location): builder.PrependStructSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(location), 0)
-def BoostPadAddIsFullBoost(builder, isFullBoost): builder.PrependBoolSlot(1, isFullBoost, 0)
-def BoostPadEnd(builder): return builder.EndObject()
+def BoostPadStart(builder):
+    builder.StartObject(2)
+
+def Start(builder):
+    BoostPadStart(builder)
+
+def BoostPadAddLocation(builder, location):
+    builder.PrependStructSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(location), 0)
+
+def AddLocation(builder, location):
+    BoostPadAddLocation(builder, location)
+
+def BoostPadAddIsFullBoost(builder, isFullBoost):
+    builder.PrependBoolSlot(1, isFullBoost, 0)
+
+def AddIsFullBoost(builder, isFullBoost):
+    BoostPadAddIsFullBoost(builder, isFullBoost)
+
+def BoostPadEnd(builder):
+    return builder.EndObject()
+
+def End(builder):
+    return BoostPadEnd(builder)
+
+import rlbot.flat.Vector3
+try:
+    from typing import Optional
+except:
+    pass
+
+class BoostPadT(object):
+
+    # BoostPadT
+    def __init__(self):
+        self.location = None  # type: Optional[rlbot.flat.Vector3.Vector3T]
+        self.isFullBoost = False  # type: bool
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        boostPad = BoostPad()
+        boostPad.Init(buf, pos)
+        return cls.InitFromObj(boostPad)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, boostPad):
+        x = BoostPadT()
+        x._UnPack(boostPad)
+        return x
+
+    # BoostPadT
+    def _UnPack(self, boostPad):
+        if boostPad is None:
+            return
+        if boostPad.Location() is not None:
+            self.location = rlbot.flat.Vector3.Vector3T.InitFromObj(boostPad.Location())
+        self.isFullBoost = boostPad.IsFullBoost()
+
+    # BoostPadT
+    def Pack(self, builder):
+        BoostPadStart(builder)
+        if self.location is not None:
+            location = self.location.Pack(builder)
+            BoostPadAddLocation(builder, location)
+        BoostPadAddIsFullBoost(builder, self.isFullBoost)
+        boostPad = BoostPadEnd(builder)
+        return boostPad

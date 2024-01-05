@@ -3,17 +3,23 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
 class DesiredCarState(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsDesiredCarState(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = DesiredCarState()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsDesiredCarState(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # DesiredCarState
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
@@ -23,7 +29,7 @@ class DesiredCarState(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
         if o != 0:
             x = self._tab.Indirect(o + self._tab.Pos)
-            from .DesiredPhysics import DesiredPhysics
+            from rlbot.flat.DesiredPhysics import DesiredPhysics
             obj = DesiredPhysics()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -34,7 +40,7 @@ class DesiredCarState(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
         if o != 0:
             x = o + self._tab.Pos
-            from .Float import Float
+            from rlbot.flat.Float import Float
             obj = Float()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -45,7 +51,7 @@ class DesiredCarState(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
         if o != 0:
             x = o + self._tab.Pos
-            from .Bool import Bool
+            from rlbot.flat.Bool import Bool
             obj = Bool()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -56,15 +62,110 @@ class DesiredCarState(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
         if o != 0:
             x = o + self._tab.Pos
-            from .Bool import Bool
+            from rlbot.flat.Bool import Bool
             obj = Bool()
             obj.Init(self._tab.Bytes, x)
             return obj
         return None
 
-def DesiredCarStateStart(builder): builder.StartObject(4)
-def DesiredCarStateAddPhysics(builder, physics): builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(physics), 0)
-def DesiredCarStateAddBoostAmount(builder, boostAmount): builder.PrependStructSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(boostAmount), 0)
-def DesiredCarStateAddJumped(builder, jumped): builder.PrependStructSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(jumped), 0)
-def DesiredCarStateAddDoubleJumped(builder, doubleJumped): builder.PrependStructSlot(3, flatbuffers.number_types.UOffsetTFlags.py_type(doubleJumped), 0)
-def DesiredCarStateEnd(builder): return builder.EndObject()
+def DesiredCarStateStart(builder):
+    builder.StartObject(4)
+
+def Start(builder):
+    DesiredCarStateStart(builder)
+
+def DesiredCarStateAddPhysics(builder, physics):
+    builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(physics), 0)
+
+def AddPhysics(builder, physics):
+    DesiredCarStateAddPhysics(builder, physics)
+
+def DesiredCarStateAddBoostAmount(builder, boostAmount):
+    builder.PrependStructSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(boostAmount), 0)
+
+def AddBoostAmount(builder, boostAmount):
+    DesiredCarStateAddBoostAmount(builder, boostAmount)
+
+def DesiredCarStateAddJumped(builder, jumped):
+    builder.PrependStructSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(jumped), 0)
+
+def AddJumped(builder, jumped):
+    DesiredCarStateAddJumped(builder, jumped)
+
+def DesiredCarStateAddDoubleJumped(builder, doubleJumped):
+    builder.PrependStructSlot(3, flatbuffers.number_types.UOffsetTFlags.py_type(doubleJumped), 0)
+
+def AddDoubleJumped(builder, doubleJumped):
+    DesiredCarStateAddDoubleJumped(builder, doubleJumped)
+
+def DesiredCarStateEnd(builder):
+    return builder.EndObject()
+
+def End(builder):
+    return DesiredCarStateEnd(builder)
+
+import rlbot.flat.Bool
+import rlbot.flat.DesiredPhysics
+import rlbot.flat.Float
+try:
+    from typing import Optional
+except:
+    pass
+
+class DesiredCarStateT(object):
+
+    # DesiredCarStateT
+    def __init__(self):
+        self.physics = None  # type: Optional[rlbot.flat.DesiredPhysics.DesiredPhysicsT]
+        self.boostAmount = None  # type: Optional[rlbot.flat.Float.FloatT]
+        self.jumped = None  # type: Optional[rlbot.flat.Bool.BoolT]
+        self.doubleJumped = None  # type: Optional[rlbot.flat.Bool.BoolT]
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        desiredCarState = DesiredCarState()
+        desiredCarState.Init(buf, pos)
+        return cls.InitFromObj(desiredCarState)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, desiredCarState):
+        x = DesiredCarStateT()
+        x._UnPack(desiredCarState)
+        return x
+
+    # DesiredCarStateT
+    def _UnPack(self, desiredCarState):
+        if desiredCarState is None:
+            return
+        if desiredCarState.Physics() is not None:
+            self.physics = rlbot.flat.DesiredPhysics.DesiredPhysicsT.InitFromObj(desiredCarState.Physics())
+        if desiredCarState.BoostAmount() is not None:
+            self.boostAmount = rlbot.flat.Float.FloatT.InitFromObj(desiredCarState.BoostAmount())
+        if desiredCarState.Jumped() is not None:
+            self.jumped = rlbot.flat.Bool.BoolT.InitFromObj(desiredCarState.Jumped())
+        if desiredCarState.DoubleJumped() is not None:
+            self.doubleJumped = rlbot.flat.Bool.BoolT.InitFromObj(desiredCarState.DoubleJumped())
+
+    # DesiredCarStateT
+    def Pack(self, builder):
+        if self.physics is not None:
+            physics = self.physics.Pack(builder)
+        DesiredCarStateStart(builder)
+        if self.physics is not None:
+            DesiredCarStateAddPhysics(builder, physics)
+        if self.boostAmount is not None:
+            boostAmount = self.boostAmount.Pack(builder)
+            DesiredCarStateAddBoostAmount(builder, boostAmount)
+        if self.jumped is not None:
+            jumped = self.jumped.Pack(builder)
+            DesiredCarStateAddJumped(builder, jumped)
+        if self.doubleJumped is not None:
+            doubleJumped = self.doubleJumped.Pack(builder)
+            DesiredCarStateAddDoubleJumped(builder, doubleJumped)
+        desiredCarState = DesiredCarStateEnd(builder)
+        return desiredCarState

@@ -3,17 +3,23 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
 class MatchSettings(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsMatchSettings(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = MatchSettings()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsMatchSettings(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # MatchSettings
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
@@ -25,7 +31,7 @@ class MatchSettings(object):
             x = self._tab.Vector(o)
             x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 4
             x = self._tab.Indirect(x)
-            from .PlayerConfiguration import PlayerConfiguration
+            from rlbot.flat.PlayerConfiguration import PlayerConfiguration
             obj = PlayerConfiguration()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -37,6 +43,11 @@ class MatchSettings(object):
         if o != 0:
             return self._tab.VectorLen(o)
         return 0
+
+    # MatchSettings
+    def PlayerConfigurationsIsNone(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
+        return o == 0
 
     # MatchSettings
     def GameMode(self):
@@ -56,22 +67,22 @@ class MatchSettings(object):
     def SkipReplays(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
         if o != 0:
-            return self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos)
-        return 0
+            return bool(self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos))
+        return False
 
     # MatchSettings
     def InstantStart(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
         if o != 0:
-            return self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos)
-        return 0
+            return bool(self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos))
+        return False
 
     # MatchSettings
     def MutatorSettings(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
         if o != 0:
             x = self._tab.Indirect(o + self._tab.Pos)
-            from .MutatorSettings import MutatorSettings
+            from rlbot.flat.MutatorSettings import MutatorSettings
             obj = MutatorSettings()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -88,54 +99,227 @@ class MatchSettings(object):
     def EnableLockstep(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(18))
         if o != 0:
-            return self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos)
-        return 0
+            return bool(self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos))
+        return False
 
     # MatchSettings
     def EnableRendering(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(20))
         if o != 0:
-            return self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos)
-        return 0
+            return bool(self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos))
+        return False
 
     # MatchSettings
     def EnableStateSetting(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(22))
         if o != 0:
-            return self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos)
-        return 0
+            return bool(self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos))
+        return False
 
     # MatchSettings
     def AutoSaveReplay(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(24))
         if o != 0:
-            return self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos)
-        return 0
+            return bool(self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos))
+        return False
 
-# /// The name of a upk file, like UtopiaStadium_P, which should be loaded.
-# /// If specified, this overrides gameMap. On Steam version of Rocket League,
-# /// this can be used to load custom map files, but on Epic version it only
-# /// works on the Psyonix maps. Still useful because maintaining the gameMap
-# /// enum as new Psyonix maps are added is annoying.
+    # The name of a upk file, like UtopiaStadium_P, which should be loaded.
+    # If specified, this overrides gameMap. On Steam version of Rocket League,
+    # this can be used to load custom map files, but on Epic version it only
+    # works on the Psyonix maps. Still useful because maintaining the gameMap
+    # enum as new Psyonix maps are added is annoying.
     # MatchSettings
     def GameMapUpk(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(26))
         if o != 0:
             return self._tab.String(o + self._tab.Pos)
-        return bytes()
+        return None
 
-def MatchSettingsStart(builder): builder.StartObject(12)
-def MatchSettingsAddPlayerConfigurations(builder, playerConfigurations): builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(playerConfigurations), 0)
-def MatchSettingsStartPlayerConfigurationsVector(builder, numElems): return builder.StartVector(4, numElems, 4)
-def MatchSettingsAddGameMode(builder, gameMode): builder.PrependInt8Slot(1, gameMode, 0)
-def MatchSettingsAddGameMap(builder, gameMap): builder.PrependInt8Slot(2, gameMap, 0)
-def MatchSettingsAddSkipReplays(builder, skipReplays): builder.PrependBoolSlot(3, skipReplays, 0)
-def MatchSettingsAddInstantStart(builder, instantStart): builder.PrependBoolSlot(4, instantStart, 0)
-def MatchSettingsAddMutatorSettings(builder, mutatorSettings): builder.PrependUOffsetTRelativeSlot(5, flatbuffers.number_types.UOffsetTFlags.py_type(mutatorSettings), 0)
-def MatchSettingsAddExistingMatchBehavior(builder, existingMatchBehavior): builder.PrependInt8Slot(6, existingMatchBehavior, 0)
-def MatchSettingsAddEnableLockstep(builder, enableLockstep): builder.PrependBoolSlot(7, enableLockstep, 0)
-def MatchSettingsAddEnableRendering(builder, enableRendering): builder.PrependBoolSlot(8, enableRendering, 0)
-def MatchSettingsAddEnableStateSetting(builder, enableStateSetting): builder.PrependBoolSlot(9, enableStateSetting, 0)
-def MatchSettingsAddAutoSaveReplay(builder, autoSaveReplay): builder.PrependBoolSlot(10, autoSaveReplay, 0)
-def MatchSettingsAddGameMapUpk(builder, gameMapUpk): builder.PrependUOffsetTRelativeSlot(11, flatbuffers.number_types.UOffsetTFlags.py_type(gameMapUpk), 0)
-def MatchSettingsEnd(builder): return builder.EndObject()
+def MatchSettingsStart(builder):
+    builder.StartObject(12)
+
+def Start(builder):
+    MatchSettingsStart(builder)
+
+def MatchSettingsAddPlayerConfigurations(builder, playerConfigurations):
+    builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(playerConfigurations), 0)
+
+def AddPlayerConfigurations(builder, playerConfigurations):
+    MatchSettingsAddPlayerConfigurations(builder, playerConfigurations)
+
+def MatchSettingsStartPlayerConfigurationsVector(builder, numElems):
+    return builder.StartVector(4, numElems, 4)
+
+def StartPlayerConfigurationsVector(builder, numElems):
+    return MatchSettingsStartPlayerConfigurationsVector(builder, numElems)
+
+def MatchSettingsAddGameMode(builder, gameMode):
+    builder.PrependInt8Slot(1, gameMode, 0)
+
+def AddGameMode(builder, gameMode):
+    MatchSettingsAddGameMode(builder, gameMode)
+
+def MatchSettingsAddGameMap(builder, gameMap):
+    builder.PrependInt8Slot(2, gameMap, 0)
+
+def AddGameMap(builder, gameMap):
+    MatchSettingsAddGameMap(builder, gameMap)
+
+def MatchSettingsAddSkipReplays(builder, skipReplays):
+    builder.PrependBoolSlot(3, skipReplays, 0)
+
+def AddSkipReplays(builder, skipReplays):
+    MatchSettingsAddSkipReplays(builder, skipReplays)
+
+def MatchSettingsAddInstantStart(builder, instantStart):
+    builder.PrependBoolSlot(4, instantStart, 0)
+
+def AddInstantStart(builder, instantStart):
+    MatchSettingsAddInstantStart(builder, instantStart)
+
+def MatchSettingsAddMutatorSettings(builder, mutatorSettings):
+    builder.PrependUOffsetTRelativeSlot(5, flatbuffers.number_types.UOffsetTFlags.py_type(mutatorSettings), 0)
+
+def AddMutatorSettings(builder, mutatorSettings):
+    MatchSettingsAddMutatorSettings(builder, mutatorSettings)
+
+def MatchSettingsAddExistingMatchBehavior(builder, existingMatchBehavior):
+    builder.PrependInt8Slot(6, existingMatchBehavior, 0)
+
+def AddExistingMatchBehavior(builder, existingMatchBehavior):
+    MatchSettingsAddExistingMatchBehavior(builder, existingMatchBehavior)
+
+def MatchSettingsAddEnableLockstep(builder, enableLockstep):
+    builder.PrependBoolSlot(7, enableLockstep, 0)
+
+def AddEnableLockstep(builder, enableLockstep):
+    MatchSettingsAddEnableLockstep(builder, enableLockstep)
+
+def MatchSettingsAddEnableRendering(builder, enableRendering):
+    builder.PrependBoolSlot(8, enableRendering, 0)
+
+def AddEnableRendering(builder, enableRendering):
+    MatchSettingsAddEnableRendering(builder, enableRendering)
+
+def MatchSettingsAddEnableStateSetting(builder, enableStateSetting):
+    builder.PrependBoolSlot(9, enableStateSetting, 0)
+
+def AddEnableStateSetting(builder, enableStateSetting):
+    MatchSettingsAddEnableStateSetting(builder, enableStateSetting)
+
+def MatchSettingsAddAutoSaveReplay(builder, autoSaveReplay):
+    builder.PrependBoolSlot(10, autoSaveReplay, 0)
+
+def AddAutoSaveReplay(builder, autoSaveReplay):
+    MatchSettingsAddAutoSaveReplay(builder, autoSaveReplay)
+
+def MatchSettingsAddGameMapUpk(builder, gameMapUpk):
+    builder.PrependUOffsetTRelativeSlot(11, flatbuffers.number_types.UOffsetTFlags.py_type(gameMapUpk), 0)
+
+def AddGameMapUpk(builder, gameMapUpk):
+    MatchSettingsAddGameMapUpk(builder, gameMapUpk)
+
+def MatchSettingsEnd(builder):
+    return builder.EndObject()
+
+def End(builder):
+    return MatchSettingsEnd(builder)
+
+import rlbot.flat.MutatorSettings
+import rlbot.flat.PlayerConfiguration
+try:
+    from typing import List, Optional
+except:
+    pass
+
+class MatchSettingsT(object):
+
+    # MatchSettingsT
+    def __init__(self):
+        self.playerConfigurations = None  # type: List[rlbot.flat.PlayerConfiguration.PlayerConfigurationT]
+        self.gameMode = 0  # type: int
+        self.gameMap = 0  # type: int
+        self.skipReplays = False  # type: bool
+        self.instantStart = False  # type: bool
+        self.mutatorSettings = None  # type: Optional[rlbot.flat.MutatorSettings.MutatorSettingsT]
+        self.existingMatchBehavior = 0  # type: int
+        self.enableLockstep = False  # type: bool
+        self.enableRendering = False  # type: bool
+        self.enableStateSetting = False  # type: bool
+        self.autoSaveReplay = False  # type: bool
+        self.gameMapUpk = None  # type: str
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        matchSettings = MatchSettings()
+        matchSettings.Init(buf, pos)
+        return cls.InitFromObj(matchSettings)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, matchSettings):
+        x = MatchSettingsT()
+        x._UnPack(matchSettings)
+        return x
+
+    # MatchSettingsT
+    def _UnPack(self, matchSettings):
+        if matchSettings is None:
+            return
+        if not matchSettings.PlayerConfigurationsIsNone():
+            self.playerConfigurations = []
+            for i in range(matchSettings.PlayerConfigurationsLength()):
+                if matchSettings.PlayerConfigurations(i) is None:
+                    self.playerConfigurations.append(None)
+                else:
+                    playerConfiguration_ = rlbot.flat.PlayerConfiguration.PlayerConfigurationT.InitFromObj(matchSettings.PlayerConfigurations(i))
+                    self.playerConfigurations.append(playerConfiguration_)
+        self.gameMode = matchSettings.GameMode()
+        self.gameMap = matchSettings.GameMap()
+        self.skipReplays = matchSettings.SkipReplays()
+        self.instantStart = matchSettings.InstantStart()
+        if matchSettings.MutatorSettings() is not None:
+            self.mutatorSettings = rlbot.flat.MutatorSettings.MutatorSettingsT.InitFromObj(matchSettings.MutatorSettings())
+        self.existingMatchBehavior = matchSettings.ExistingMatchBehavior()
+        self.enableLockstep = matchSettings.EnableLockstep()
+        self.enableRendering = matchSettings.EnableRendering()
+        self.enableStateSetting = matchSettings.EnableStateSetting()
+        self.autoSaveReplay = matchSettings.AutoSaveReplay()
+        self.gameMapUpk = matchSettings.GameMapUpk()
+
+    # MatchSettingsT
+    def Pack(self, builder):
+        if self.playerConfigurations is not None:
+            playerConfigurationslist = []
+            for i in range(len(self.playerConfigurations)):
+                playerConfigurationslist.append(self.playerConfigurations[i].Pack(builder))
+            MatchSettingsStartPlayerConfigurationsVector(builder, len(self.playerConfigurations))
+            for i in reversed(range(len(self.playerConfigurations))):
+                builder.PrependUOffsetTRelative(playerConfigurationslist[i])
+            playerConfigurations = builder.EndVector()
+        if self.mutatorSettings is not None:
+            mutatorSettings = self.mutatorSettings.Pack(builder)
+        if self.gameMapUpk is not None:
+            gameMapUpk = builder.CreateString(self.gameMapUpk)
+        MatchSettingsStart(builder)
+        if self.playerConfigurations is not None:
+            MatchSettingsAddPlayerConfigurations(builder, playerConfigurations)
+        MatchSettingsAddGameMode(builder, self.gameMode)
+        MatchSettingsAddGameMap(builder, self.gameMap)
+        MatchSettingsAddSkipReplays(builder, self.skipReplays)
+        MatchSettingsAddInstantStart(builder, self.instantStart)
+        if self.mutatorSettings is not None:
+            MatchSettingsAddMutatorSettings(builder, mutatorSettings)
+        MatchSettingsAddExistingMatchBehavior(builder, self.existingMatchBehavior)
+        MatchSettingsAddEnableLockstep(builder, self.enableLockstep)
+        MatchSettingsAddEnableRendering(builder, self.enableRendering)
+        MatchSettingsAddEnableStateSetting(builder, self.enableStateSetting)
+        MatchSettingsAddAutoSaveReplay(builder, self.autoSaveReplay)
+        if self.gameMapUpk is not None:
+            MatchSettingsAddGameMapUpk(builder, gameMapUpk)
+        matchSettings = MatchSettingsEnd(builder)
+        return matchSettings

@@ -9,3 +9,20 @@ class PlayerClass(object):
     PsyonixBotPlayer = 3
     PartyMemberBotPlayer = 4
 
+def PlayerClassCreator(unionType, table):
+    from flatbuffers.table import Table
+    if not isinstance(table, Table):
+        return None
+    if unionType == PlayerClass().RLBotPlayer:
+        import rlbot.flat.RLBotPlayer
+        return rlbot.flat.RLBotPlayer.RLBotPlayerT.InitFromBuf(table.Bytes, table.Pos)
+    if unionType == PlayerClass().HumanPlayer:
+        import rlbot.flat.HumanPlayer
+        return rlbot.flat.HumanPlayer.HumanPlayerT.InitFromBuf(table.Bytes, table.Pos)
+    if unionType == PlayerClass().PsyonixBotPlayer:
+        import rlbot.flat.PsyonixBotPlayer
+        return rlbot.flat.PsyonixBotPlayer.PsyonixBotPlayerT.InitFromBuf(table.Bytes, table.Pos)
+    if unionType == PlayerClass().PartyMemberBotPlayer:
+        import rlbot.flat.PartyMemberBotPlayer
+        return rlbot.flat.PartyMemberBotPlayer.PartyMemberBotPlayerT.InitFromBuf(table.Bytes, table.Pos)
+    return None

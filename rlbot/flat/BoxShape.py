@@ -3,17 +3,23 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
 class BoxShape(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsBoxShape(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = BoxShape()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsBoxShape(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # BoxShape
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
@@ -39,8 +45,75 @@ class BoxShape(object):
             return self._tab.Get(flatbuffers.number_types.Float32Flags, o + self._tab.Pos)
         return 0.0
 
-def BoxShapeStart(builder): builder.StartObject(3)
-def BoxShapeAddLength(builder, length): builder.PrependFloat32Slot(0, length, 0.0)
-def BoxShapeAddWidth(builder, width): builder.PrependFloat32Slot(1, width, 0.0)
-def BoxShapeAddHeight(builder, height): builder.PrependFloat32Slot(2, height, 0.0)
-def BoxShapeEnd(builder): return builder.EndObject()
+def BoxShapeStart(builder):
+    builder.StartObject(3)
+
+def Start(builder):
+    BoxShapeStart(builder)
+
+def BoxShapeAddLength(builder, length):
+    builder.PrependFloat32Slot(0, length, 0.0)
+
+def AddLength(builder, length):
+    BoxShapeAddLength(builder, length)
+
+def BoxShapeAddWidth(builder, width):
+    builder.PrependFloat32Slot(1, width, 0.0)
+
+def AddWidth(builder, width):
+    BoxShapeAddWidth(builder, width)
+
+def BoxShapeAddHeight(builder, height):
+    builder.PrependFloat32Slot(2, height, 0.0)
+
+def AddHeight(builder, height):
+    BoxShapeAddHeight(builder, height)
+
+def BoxShapeEnd(builder):
+    return builder.EndObject()
+
+def End(builder):
+    return BoxShapeEnd(builder)
+
+
+class BoxShapeT(object):
+
+    # BoxShapeT
+    def __init__(self):
+        self.length = 0.0  # type: float
+        self.width = 0.0  # type: float
+        self.height = 0.0  # type: float
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        boxShape = BoxShape()
+        boxShape.Init(buf, pos)
+        return cls.InitFromObj(boxShape)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, boxShape):
+        x = BoxShapeT()
+        x._UnPack(boxShape)
+        return x
+
+    # BoxShapeT
+    def _UnPack(self, boxShape):
+        if boxShape is None:
+            return
+        self.length = boxShape.Length()
+        self.width = boxShape.Width()
+        self.height = boxShape.Height()
+
+    # BoxShapeT
+    def Pack(self, builder):
+        BoxShapeStart(builder)
+        BoxShapeAddLength(builder, self.length)
+        BoxShapeAddWidth(builder, self.width)
+        BoxShapeAddHeight(builder, self.height)
+        boxShape = BoxShapeEnd(builder)
+        return boxShape

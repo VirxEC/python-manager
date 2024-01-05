@@ -3,17 +3,23 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
 class DesiredGameState(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsDesiredGameState(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = DesiredGameState()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsDesiredGameState(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # DesiredGameState
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
@@ -23,7 +29,7 @@ class DesiredGameState(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
         if o != 0:
             x = self._tab.Indirect(o + self._tab.Pos)
-            from .DesiredBallState import DesiredBallState
+            from rlbot.flat.DesiredBallState import DesiredBallState
             obj = DesiredBallState()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -36,7 +42,7 @@ class DesiredGameState(object):
             x = self._tab.Vector(o)
             x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 4
             x = self._tab.Indirect(x)
-            from .DesiredCarState import DesiredCarState
+            from rlbot.flat.DesiredCarState import DesiredCarState
             obj = DesiredCarState()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -50,13 +56,18 @@ class DesiredGameState(object):
         return 0
 
     # DesiredGameState
+    def CarStatesIsNone(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
+        return o == 0
+
+    # DesiredGameState
     def BoostStates(self, j):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
         if o != 0:
             x = self._tab.Vector(o)
             x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 4
             x = self._tab.Indirect(x)
-            from .DesiredBoostState import DesiredBoostState
+            from rlbot.flat.DesiredBoostState import DesiredBoostState
             obj = DesiredBoostState()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -70,11 +81,16 @@ class DesiredGameState(object):
         return 0
 
     # DesiredGameState
+    def BoostStatesIsNone(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
+        return o == 0
+
+    # DesiredGameState
     def GameInfoState(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
         if o != 0:
             x = self._tab.Indirect(o + self._tab.Pos)
-            from .DesiredGameInfoState import DesiredGameInfoState
+            from rlbot.flat.DesiredGameInfoState import DesiredGameInfoState
             obj = DesiredGameInfoState()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -87,7 +103,7 @@ class DesiredGameState(object):
             x = self._tab.Vector(o)
             x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 4
             x = self._tab.Indirect(x)
-            from .ConsoleCommand import ConsoleCommand
+            from rlbot.flat.ConsoleCommand import ConsoleCommand
             obj = ConsoleCommand()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -100,13 +116,181 @@ class DesiredGameState(object):
             return self._tab.VectorLen(o)
         return 0
 
-def DesiredGameStateStart(builder): builder.StartObject(5)
-def DesiredGameStateAddBallState(builder, ballState): builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(ballState), 0)
-def DesiredGameStateAddCarStates(builder, carStates): builder.PrependUOffsetTRelativeSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(carStates), 0)
-def DesiredGameStateStartCarStatesVector(builder, numElems): return builder.StartVector(4, numElems, 4)
-def DesiredGameStateAddBoostStates(builder, boostStates): builder.PrependUOffsetTRelativeSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(boostStates), 0)
-def DesiredGameStateStartBoostStatesVector(builder, numElems): return builder.StartVector(4, numElems, 4)
-def DesiredGameStateAddGameInfoState(builder, gameInfoState): builder.PrependUOffsetTRelativeSlot(3, flatbuffers.number_types.UOffsetTFlags.py_type(gameInfoState), 0)
-def DesiredGameStateAddConsoleCommands(builder, consoleCommands): builder.PrependUOffsetTRelativeSlot(4, flatbuffers.number_types.UOffsetTFlags.py_type(consoleCommands), 0)
-def DesiredGameStateStartConsoleCommandsVector(builder, numElems): return builder.StartVector(4, numElems, 4)
-def DesiredGameStateEnd(builder): return builder.EndObject()
+    # DesiredGameState
+    def ConsoleCommandsIsNone(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
+        return o == 0
+
+def DesiredGameStateStart(builder):
+    builder.StartObject(5)
+
+def Start(builder):
+    DesiredGameStateStart(builder)
+
+def DesiredGameStateAddBallState(builder, ballState):
+    builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(ballState), 0)
+
+def AddBallState(builder, ballState):
+    DesiredGameStateAddBallState(builder, ballState)
+
+def DesiredGameStateAddCarStates(builder, carStates):
+    builder.PrependUOffsetTRelativeSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(carStates), 0)
+
+def AddCarStates(builder, carStates):
+    DesiredGameStateAddCarStates(builder, carStates)
+
+def DesiredGameStateStartCarStatesVector(builder, numElems):
+    return builder.StartVector(4, numElems, 4)
+
+def StartCarStatesVector(builder, numElems):
+    return DesiredGameStateStartCarStatesVector(builder, numElems)
+
+def DesiredGameStateAddBoostStates(builder, boostStates):
+    builder.PrependUOffsetTRelativeSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(boostStates), 0)
+
+def AddBoostStates(builder, boostStates):
+    DesiredGameStateAddBoostStates(builder, boostStates)
+
+def DesiredGameStateStartBoostStatesVector(builder, numElems):
+    return builder.StartVector(4, numElems, 4)
+
+def StartBoostStatesVector(builder, numElems):
+    return DesiredGameStateStartBoostStatesVector(builder, numElems)
+
+def DesiredGameStateAddGameInfoState(builder, gameInfoState):
+    builder.PrependUOffsetTRelativeSlot(3, flatbuffers.number_types.UOffsetTFlags.py_type(gameInfoState), 0)
+
+def AddGameInfoState(builder, gameInfoState):
+    DesiredGameStateAddGameInfoState(builder, gameInfoState)
+
+def DesiredGameStateAddConsoleCommands(builder, consoleCommands):
+    builder.PrependUOffsetTRelativeSlot(4, flatbuffers.number_types.UOffsetTFlags.py_type(consoleCommands), 0)
+
+def AddConsoleCommands(builder, consoleCommands):
+    DesiredGameStateAddConsoleCommands(builder, consoleCommands)
+
+def DesiredGameStateStartConsoleCommandsVector(builder, numElems):
+    return builder.StartVector(4, numElems, 4)
+
+def StartConsoleCommandsVector(builder, numElems):
+    return DesiredGameStateStartConsoleCommandsVector(builder, numElems)
+
+def DesiredGameStateEnd(builder):
+    return builder.EndObject()
+
+def End(builder):
+    return DesiredGameStateEnd(builder)
+
+import rlbot.flat.ConsoleCommand
+import rlbot.flat.DesiredBallState
+import rlbot.flat.DesiredBoostState
+import rlbot.flat.DesiredCarState
+import rlbot.flat.DesiredGameInfoState
+try:
+    from typing import List, Optional
+except:
+    pass
+
+class DesiredGameStateT(object):
+
+    # DesiredGameStateT
+    def __init__(self):
+        self.ballState = None  # type: Optional[rlbot.flat.DesiredBallState.DesiredBallStateT]
+        self.carStates = None  # type: List[rlbot.flat.DesiredCarState.DesiredCarStateT]
+        self.boostStates = None  # type: List[rlbot.flat.DesiredBoostState.DesiredBoostStateT]
+        self.gameInfoState = None  # type: Optional[rlbot.flat.DesiredGameInfoState.DesiredGameInfoStateT]
+        self.consoleCommands = None  # type: List[rlbot.flat.ConsoleCommand.ConsoleCommandT]
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        desiredGameState = DesiredGameState()
+        desiredGameState.Init(buf, pos)
+        return cls.InitFromObj(desiredGameState)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, desiredGameState):
+        x = DesiredGameStateT()
+        x._UnPack(desiredGameState)
+        return x
+
+    # DesiredGameStateT
+    def _UnPack(self, desiredGameState):
+        if desiredGameState is None:
+            return
+        if desiredGameState.BallState() is not None:
+            self.ballState = rlbot.flat.DesiredBallState.DesiredBallStateT.InitFromObj(desiredGameState.BallState())
+        if not desiredGameState.CarStatesIsNone():
+            self.carStates = []
+            for i in range(desiredGameState.CarStatesLength()):
+                if desiredGameState.CarStates(i) is None:
+                    self.carStates.append(None)
+                else:
+                    desiredCarState_ = rlbot.flat.DesiredCarState.DesiredCarStateT.InitFromObj(desiredGameState.CarStates(i))
+                    self.carStates.append(desiredCarState_)
+        if not desiredGameState.BoostStatesIsNone():
+            self.boostStates = []
+            for i in range(desiredGameState.BoostStatesLength()):
+                if desiredGameState.BoostStates(i) is None:
+                    self.boostStates.append(None)
+                else:
+                    desiredBoostState_ = rlbot.flat.DesiredBoostState.DesiredBoostStateT.InitFromObj(desiredGameState.BoostStates(i))
+                    self.boostStates.append(desiredBoostState_)
+        if desiredGameState.GameInfoState() is not None:
+            self.gameInfoState = rlbot.flat.DesiredGameInfoState.DesiredGameInfoStateT.InitFromObj(desiredGameState.GameInfoState())
+        if not desiredGameState.ConsoleCommandsIsNone():
+            self.consoleCommands = []
+            for i in range(desiredGameState.ConsoleCommandsLength()):
+                if desiredGameState.ConsoleCommands(i) is None:
+                    self.consoleCommands.append(None)
+                else:
+                    consoleCommand_ = rlbot.flat.ConsoleCommand.ConsoleCommandT.InitFromObj(desiredGameState.ConsoleCommands(i))
+                    self.consoleCommands.append(consoleCommand_)
+
+    # DesiredGameStateT
+    def Pack(self, builder):
+        if self.ballState is not None:
+            ballState = self.ballState.Pack(builder)
+        if self.carStates is not None:
+            carStateslist = []
+            for i in range(len(self.carStates)):
+                carStateslist.append(self.carStates[i].Pack(builder))
+            DesiredGameStateStartCarStatesVector(builder, len(self.carStates))
+            for i in reversed(range(len(self.carStates))):
+                builder.PrependUOffsetTRelative(carStateslist[i])
+            carStates = builder.EndVector()
+        if self.boostStates is not None:
+            boostStateslist = []
+            for i in range(len(self.boostStates)):
+                boostStateslist.append(self.boostStates[i].Pack(builder))
+            DesiredGameStateStartBoostStatesVector(builder, len(self.boostStates))
+            for i in reversed(range(len(self.boostStates))):
+                builder.PrependUOffsetTRelative(boostStateslist[i])
+            boostStates = builder.EndVector()
+        if self.gameInfoState is not None:
+            gameInfoState = self.gameInfoState.Pack(builder)
+        if self.consoleCommands is not None:
+            consoleCommandslist = []
+            for i in range(len(self.consoleCommands)):
+                consoleCommandslist.append(self.consoleCommands[i].Pack(builder))
+            DesiredGameStateStartConsoleCommandsVector(builder, len(self.consoleCommands))
+            for i in reversed(range(len(self.consoleCommands))):
+                builder.PrependUOffsetTRelative(consoleCommandslist[i])
+            consoleCommands = builder.EndVector()
+        DesiredGameStateStart(builder)
+        if self.ballState is not None:
+            DesiredGameStateAddBallState(builder, ballState)
+        if self.carStates is not None:
+            DesiredGameStateAddCarStates(builder, carStates)
+        if self.boostStates is not None:
+            DesiredGameStateAddBoostStates(builder, boostStates)
+        if self.gameInfoState is not None:
+            DesiredGameStateAddGameInfoState(builder, gameInfoState)
+        if self.consoleCommands is not None:
+            DesiredGameStateAddConsoleCommands(builder, consoleCommands)
+        desiredGameState = DesiredGameStateEnd(builder)
+        return desiredGameState

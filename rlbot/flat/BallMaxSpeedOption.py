@@ -7,4 +7,3 @@ class BallMaxSpeedOption(object):
     Slow = 1
     Fast = 2
     Super_Fast = 3
-

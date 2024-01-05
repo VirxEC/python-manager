@@ -3,17 +3,23 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
 class DesiredBoostState(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsDesiredBoostState(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = DesiredBoostState()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsDesiredBoostState(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # DesiredBoostState
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
@@ -23,12 +29,71 @@ class DesiredBoostState(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
         if o != 0:
             x = o + self._tab.Pos
-            from .Float import Float
+            from rlbot.flat.Float import Float
             obj = Float()
             obj.Init(self._tab.Bytes, x)
             return obj
         return None
 
-def DesiredBoostStateStart(builder): builder.StartObject(1)
-def DesiredBoostStateAddRespawnTime(builder, respawnTime): builder.PrependStructSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(respawnTime), 0)
-def DesiredBoostStateEnd(builder): return builder.EndObject()
+def DesiredBoostStateStart(builder):
+    builder.StartObject(1)
+
+def Start(builder):
+    DesiredBoostStateStart(builder)
+
+def DesiredBoostStateAddRespawnTime(builder, respawnTime):
+    builder.PrependStructSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(respawnTime), 0)
+
+def AddRespawnTime(builder, respawnTime):
+    DesiredBoostStateAddRespawnTime(builder, respawnTime)
+
+def DesiredBoostStateEnd(builder):
+    return builder.EndObject()
+
+def End(builder):
+    return DesiredBoostStateEnd(builder)
+
+import rlbot.flat.Float
+try:
+    from typing import Optional
+except:
+    pass
+
+class DesiredBoostStateT(object):
+
+    # DesiredBoostStateT
+    def __init__(self):
+        self.respawnTime = None  # type: Optional[rlbot.flat.Float.FloatT]
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        desiredBoostState = DesiredBoostState()
+        desiredBoostState.Init(buf, pos)
+        return cls.InitFromObj(desiredBoostState)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, desiredBoostState):
+        x = DesiredBoostStateT()
+        x._UnPack(desiredBoostState)
+        return x
+
+    # DesiredBoostStateT
+    def _UnPack(self, desiredBoostState):
+        if desiredBoostState is None:
+            return
+        if desiredBoostState.RespawnTime() is not None:
+            self.respawnTime = rlbot.flat.Float.FloatT.InitFromObj(desiredBoostState.RespawnTime())
+
+    # DesiredBoostStateT
+    def Pack(self, builder):
+        DesiredBoostStateStart(builder)
+        if self.respawnTime is not None:
+            respawnTime = self.respawnTime.Pack(builder)
+            DesiredBoostStateAddRespawnTime(builder, respawnTime)
+        desiredBoostState = DesiredBoostStateEnd(builder)
+        return desiredBoostState

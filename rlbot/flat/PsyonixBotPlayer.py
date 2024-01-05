@@ -3,18 +3,24 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
-# /// A psyonix bot, e.g. All Star bot
+# A psyonix bot, e.g. All Star bot
 class PsyonixBotPlayer(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsPsyonixBotPlayer(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = PsyonixBotPlayer()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsPsyonixBotPlayer(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # PsyonixBotPlayer
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
@@ -26,6 +32,57 @@ class PsyonixBotPlayer(object):
             return self._tab.Get(flatbuffers.number_types.Float32Flags, o + self._tab.Pos)
         return 0.0
 
-def PsyonixBotPlayerStart(builder): builder.StartObject(1)
-def PsyonixBotPlayerAddBotSkill(builder, botSkill): builder.PrependFloat32Slot(0, botSkill, 0.0)
-def PsyonixBotPlayerEnd(builder): return builder.EndObject()
+def PsyonixBotPlayerStart(builder):
+    builder.StartObject(1)
+
+def Start(builder):
+    PsyonixBotPlayerStart(builder)
+
+def PsyonixBotPlayerAddBotSkill(builder, botSkill):
+    builder.PrependFloat32Slot(0, botSkill, 0.0)
+
+def AddBotSkill(builder, botSkill):
+    PsyonixBotPlayerAddBotSkill(builder, botSkill)
+
+def PsyonixBotPlayerEnd(builder):
+    return builder.EndObject()
+
+def End(builder):
+    return PsyonixBotPlayerEnd(builder)
+
+
+class PsyonixBotPlayerT(object):
+
+    # PsyonixBotPlayerT
+    def __init__(self):
+        self.botSkill = 0.0  # type: float
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        psyonixBotPlayer = PsyonixBotPlayer()
+        psyonixBotPlayer.Init(buf, pos)
+        return cls.InitFromObj(psyonixBotPlayer)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, psyonixBotPlayer):
+        x = PsyonixBotPlayerT()
+        x._UnPack(psyonixBotPlayer)
+        return x
+
+    # PsyonixBotPlayerT
+    def _UnPack(self, psyonixBotPlayer):
+        if psyonixBotPlayer is None:
+            return
+        self.botSkill = psyonixBotPlayer.BotSkill()
+
+    # PsyonixBotPlayerT
+    def Pack(self, builder):
+        PsyonixBotPlayerStart(builder)
+        PsyonixBotPlayerAddBotSkill(builder, self.botSkill)
+        psyonixBotPlayer = PsyonixBotPlayerEnd(builder)
+        return psyonixBotPlayer

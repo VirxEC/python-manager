@@ -3,17 +3,23 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
 class QuickChat(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsQuickChat(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = QuickChat()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsQuickChat(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # QuickChat
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
@@ -25,7 +31,7 @@ class QuickChat(object):
             return self._tab.Get(flatbuffers.number_types.Int8Flags, o + self._tab.Pos)
         return 0
 
-# /// The index of the player that sent the quick chat
+    # The index of the player that sent the quick chat
     # QuickChat
     def PlayerIndex(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
@@ -33,13 +39,13 @@ class QuickChat(object):
             return self._tab.Get(flatbuffers.number_types.Int32Flags, o + self._tab.Pos)
         return 0
 
-# /// True if the chat is team only false if everyone can see it.
+    # True if the chat is team only false if everyone can see it.
     # QuickChat
     def TeamOnly(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
         if o != 0:
-            return self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos)
-        return 0
+            return bool(self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos))
+        return False
 
     # QuickChat
     def MessageIndex(self):
@@ -55,10 +61,93 @@ class QuickChat(object):
             return self._tab.Get(flatbuffers.number_types.Float32Flags, o + self._tab.Pos)
         return 0.0
 
-def QuickChatStart(builder): builder.StartObject(5)
-def QuickChatAddQuickChatSelection(builder, quickChatSelection): builder.PrependInt8Slot(0, quickChatSelection, 0)
-def QuickChatAddPlayerIndex(builder, playerIndex): builder.PrependInt32Slot(1, playerIndex, 0)
-def QuickChatAddTeamOnly(builder, teamOnly): builder.PrependBoolSlot(2, teamOnly, 0)
-def QuickChatAddMessageIndex(builder, messageIndex): builder.PrependInt32Slot(3, messageIndex, 0)
-def QuickChatAddTimeStamp(builder, timeStamp): builder.PrependFloat32Slot(4, timeStamp, 0.0)
-def QuickChatEnd(builder): return builder.EndObject()
+def QuickChatStart(builder):
+    builder.StartObject(5)
+
+def Start(builder):
+    QuickChatStart(builder)
+
+def QuickChatAddQuickChatSelection(builder, quickChatSelection):
+    builder.PrependInt8Slot(0, quickChatSelection, 0)
+
+def AddQuickChatSelection(builder, quickChatSelection):
+    QuickChatAddQuickChatSelection(builder, quickChatSelection)
+
+def QuickChatAddPlayerIndex(builder, playerIndex):
+    builder.PrependInt32Slot(1, playerIndex, 0)
+
+def AddPlayerIndex(builder, playerIndex):
+    QuickChatAddPlayerIndex(builder, playerIndex)
+
+def QuickChatAddTeamOnly(builder, teamOnly):
+    builder.PrependBoolSlot(2, teamOnly, 0)
+
+def AddTeamOnly(builder, teamOnly):
+    QuickChatAddTeamOnly(builder, teamOnly)
+
+def QuickChatAddMessageIndex(builder, messageIndex):
+    builder.PrependInt32Slot(3, messageIndex, 0)
+
+def AddMessageIndex(builder, messageIndex):
+    QuickChatAddMessageIndex(builder, messageIndex)
+
+def QuickChatAddTimeStamp(builder, timeStamp):
+    builder.PrependFloat32Slot(4, timeStamp, 0.0)
+
+def AddTimeStamp(builder, timeStamp):
+    QuickChatAddTimeStamp(builder, timeStamp)
+
+def QuickChatEnd(builder):
+    return builder.EndObject()
+
+def End(builder):
+    return QuickChatEnd(builder)
+
+
+class QuickChatT(object):
+
+    # QuickChatT
+    def __init__(self):
+        self.quickChatSelection = 0  # type: int
+        self.playerIndex = 0  # type: int
+        self.teamOnly = False  # type: bool
+        self.messageIndex = 0  # type: int
+        self.timeStamp = 0.0  # type: float
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        quickChat = QuickChat()
+        quickChat.Init(buf, pos)
+        return cls.InitFromObj(quickChat)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, quickChat):
+        x = QuickChatT()
+        x._UnPack(quickChat)
+        return x
+
+    # QuickChatT
+    def _UnPack(self, quickChat):
+        if quickChat is None:
+            return
+        self.quickChatSelection = quickChat.QuickChatSelection()
+        self.playerIndex = quickChat.PlayerIndex()
+        self.teamOnly = quickChat.TeamOnly()
+        self.messageIndex = quickChat.MessageIndex()
+        self.timeStamp = quickChat.TimeStamp()
+
+    # QuickChatT
+    def Pack(self, builder):
+        QuickChatStart(builder)
+        QuickChatAddQuickChatSelection(builder, self.quickChatSelection)
+        QuickChatAddPlayerIndex(builder, self.playerIndex)
+        QuickChatAddTeamOnly(builder, self.teamOnly)
+        QuickChatAddMessageIndex(builder, self.messageIndex)
+        QuickChatAddTimeStamp(builder, self.timeStamp)
+        quickChat = QuickChatEnd(builder)
+        return quickChat

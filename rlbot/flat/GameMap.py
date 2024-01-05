@@ -63,4 +63,3 @@ class GameMap(object):
     Hourglass = 57
     Barricade = 58
     Colossus = 59
-

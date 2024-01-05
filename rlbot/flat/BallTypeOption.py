@@ -7,4 +7,3 @@ class BallTypeOption(object):
     Cube = 1
     Puck = 2
     Basketball = 3
-

@@ -7,4 +7,3 @@ class BallWeightOption(object):
     Light = 1
     Heavy = 2
     Super_Light = 3
-

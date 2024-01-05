@@ -46,44 +46,43 @@ class QuickChatSelection(object):
     PostGame_WhatAGame = 40
     PostGame_NiceMoves = 41
     PostGame_EverybodyDance = 42
-# /// Custom text chats made by bot makers
+    # Custom text chats made by bot makers
     MaxPysonixQuickChatPresets = 43
-# /// Waste of CPU cycles
+    # Waste of CPU cycles
     Custom_Toxic_WasteCPU = 44
-# /// Git gud*
+    # Git gud*
     Custom_Toxic_GitGut = 45
-# /// De-Allocate Yourself
+    # De-Allocate Yourself
     Custom_Toxic_DeAlloc = 46
-# /// 404: Your skill not found
+    # 404: Your skill not found
     Custom_Toxic_404NoSkill = 47
-# /// Get a virus
+    # Get a virus
     Custom_Toxic_CatchVirus = 48
-# /// Passing!
+    # Passing!
     Custom_Useful_Passing = 49
-# /// Faking!
+    # Faking!
     Custom_Useful_Faking = 50
-# /// Demoing!
+    # Demoing!
     Custom_Useful_Demoing = 51
-# /// BOOPING
+    # BOOPING
     Custom_Useful_Bumping = 52
-# /// The chances of that was 47525 to 1*
+    # The chances of that was 47525 to 1*
     Custom_Compliments_TinyChances = 53
-# /// Who upped your skill level?
+    # Who upped your skill level?
     Custom_Compliments_SkillLevel = 54
-# /// Your programmer should be proud
+    # Your programmer should be proud
     Custom_Compliments_proud = 55
-# /// You're the GC of Bots
+    # You're the GC of Bots
     Custom_Compliments_GC = 56
-# /// Are you [Insert Pro]Bot? *
+    # Are you [Insert Pro]Bot? *
     Custom_Compliments_Pro = 57
-# /// Lag
+    # Lag
     Custom_Excuses_Lag = 58
-# /// Ghost inputs
+    # Ghost inputs
     Custom_Excuses_GhostInputs = 59
-# /// RIGGED
+    # RIGGED
     Custom_Excuses_Rigged = 60
-# /// Mafia plays!
+    # Mafia plays!
     Custom_Toxic_MafiaPlays = 61
-# /// Yeet!
+    # Yeet!
     Custom_Exclamation_Yeet = 62
-

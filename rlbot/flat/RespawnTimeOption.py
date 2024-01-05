@@ -7,4 +7,3 @@ class RespawnTimeOption(object):
     Two_Seconds = 1
     One_Seconds = 2
     Disable_Goal_Reset = 3
-

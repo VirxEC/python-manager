@@ -3,17 +3,23 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
 class MutatorSettings(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsMutatorSettings(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = MutatorSettings()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsMutatorSettings(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # MutatorSettings
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
@@ -130,21 +136,192 @@ class MutatorSettings(object):
             return self._tab.Get(flatbuffers.number_types.Int8Flags, o + self._tab.Pos)
         return 0
 
-def MutatorSettingsStart(builder): builder.StartObject(16)
-def MutatorSettingsAddMatchLength(builder, matchLength): builder.PrependInt8Slot(0, matchLength, 0)
-def MutatorSettingsAddMaxScore(builder, maxScore): builder.PrependInt8Slot(1, maxScore, 0)
-def MutatorSettingsAddOvertimeOption(builder, overtimeOption): builder.PrependInt8Slot(2, overtimeOption, 0)
-def MutatorSettingsAddSeriesLengthOption(builder, seriesLengthOption): builder.PrependInt8Slot(3, seriesLengthOption, 0)
-def MutatorSettingsAddGameSpeedOption(builder, gameSpeedOption): builder.PrependInt8Slot(4, gameSpeedOption, 0)
-def MutatorSettingsAddBallMaxSpeedOption(builder, ballMaxSpeedOption): builder.PrependInt8Slot(5, ballMaxSpeedOption, 0)
-def MutatorSettingsAddBallTypeOption(builder, ballTypeOption): builder.PrependInt8Slot(6, ballTypeOption, 0)
-def MutatorSettingsAddBallWeightOption(builder, ballWeightOption): builder.PrependInt8Slot(7, ballWeightOption, 0)
-def MutatorSettingsAddBallSizeOption(builder, ballSizeOption): builder.PrependInt8Slot(8, ballSizeOption, 0)
-def MutatorSettingsAddBallBouncinessOption(builder, ballBouncinessOption): builder.PrependInt8Slot(9, ballBouncinessOption, 0)
-def MutatorSettingsAddBoostOption(builder, boostOption): builder.PrependInt8Slot(10, boostOption, 0)
-def MutatorSettingsAddRumbleOption(builder, rumbleOption): builder.PrependInt8Slot(11, rumbleOption, 0)
-def MutatorSettingsAddBoostStrengthOption(builder, boostStrengthOption): builder.PrependInt8Slot(12, boostStrengthOption, 0)
-def MutatorSettingsAddGravityOption(builder, gravityOption): builder.PrependInt8Slot(13, gravityOption, 0)
-def MutatorSettingsAddDemolishOption(builder, demolishOption): builder.PrependInt8Slot(14, demolishOption, 0)
-def MutatorSettingsAddRespawnTimeOption(builder, respawnTimeOption): builder.PrependInt8Slot(15, respawnTimeOption, 0)
-def MutatorSettingsEnd(builder): return builder.EndObject()
+def MutatorSettingsStart(builder):
+    builder.StartObject(16)
+
+def Start(builder):
+    MutatorSettingsStart(builder)
+
+def MutatorSettingsAddMatchLength(builder, matchLength):
+    builder.PrependInt8Slot(0, matchLength, 0)
+
+def AddMatchLength(builder, matchLength):
+    MutatorSettingsAddMatchLength(builder, matchLength)
+
+def MutatorSettingsAddMaxScore(builder, maxScore):
+    builder.PrependInt8Slot(1, maxScore, 0)
+
+def AddMaxScore(builder, maxScore):
+    MutatorSettingsAddMaxScore(builder, maxScore)
+
+def MutatorSettingsAddOvertimeOption(builder, overtimeOption):
+    builder.PrependInt8Slot(2, overtimeOption, 0)
+
+def AddOvertimeOption(builder, overtimeOption):
+    MutatorSettingsAddOvertimeOption(builder, overtimeOption)
+
+def MutatorSettingsAddSeriesLengthOption(builder, seriesLengthOption):
+    builder.PrependInt8Slot(3, seriesLengthOption, 0)
+
+def AddSeriesLengthOption(builder, seriesLengthOption):
+    MutatorSettingsAddSeriesLengthOption(builder, seriesLengthOption)
+
+def MutatorSettingsAddGameSpeedOption(builder, gameSpeedOption):
+    builder.PrependInt8Slot(4, gameSpeedOption, 0)
+
+def AddGameSpeedOption(builder, gameSpeedOption):
+    MutatorSettingsAddGameSpeedOption(builder, gameSpeedOption)
+
+def MutatorSettingsAddBallMaxSpeedOption(builder, ballMaxSpeedOption):
+    builder.PrependInt8Slot(5, ballMaxSpeedOption, 0)
+
+def AddBallMaxSpeedOption(builder, ballMaxSpeedOption):
+    MutatorSettingsAddBallMaxSpeedOption(builder, ballMaxSpeedOption)
+
+def MutatorSettingsAddBallTypeOption(builder, ballTypeOption):
+    builder.PrependInt8Slot(6, ballTypeOption, 0)
+
+def AddBallTypeOption(builder, ballTypeOption):
+    MutatorSettingsAddBallTypeOption(builder, ballTypeOption)
+
+def MutatorSettingsAddBallWeightOption(builder, ballWeightOption):
+    builder.PrependInt8Slot(7, ballWeightOption, 0)
+
+def AddBallWeightOption(builder, ballWeightOption):
+    MutatorSettingsAddBallWeightOption(builder, ballWeightOption)
+
+def MutatorSettingsAddBallSizeOption(builder, ballSizeOption):
+    builder.PrependInt8Slot(8, ballSizeOption, 0)
+
+def AddBallSizeOption(builder, ballSizeOption):
+    MutatorSettingsAddBallSizeOption(builder, ballSizeOption)
+
+def MutatorSettingsAddBallBouncinessOption(builder, ballBouncinessOption):
+    builder.PrependInt8Slot(9, ballBouncinessOption, 0)
+
+def AddBallBouncinessOption(builder, ballBouncinessOption):
+    MutatorSettingsAddBallBouncinessOption(builder, ballBouncinessOption)
+
+def MutatorSettingsAddBoostOption(builder, boostOption):
+    builder.PrependInt8Slot(10, boostOption, 0)
+
+def AddBoostOption(builder, boostOption):
+    MutatorSettingsAddBoostOption(builder, boostOption)
+
+def MutatorSettingsAddRumbleOption(builder, rumbleOption):
+    builder.PrependInt8Slot(11, rumbleOption, 0)
+
+def AddRumbleOption(builder, rumbleOption):
+    MutatorSettingsAddRumbleOption(builder, rumbleOption)
+
+def MutatorSettingsAddBoostStrengthOption(builder, boostStrengthOption):
+    builder.PrependInt8Slot(12, boostStrengthOption, 0)
+
+def AddBoostStrengthOption(builder, boostStrengthOption):
+    MutatorSettingsAddBoostStrengthOption(builder, boostStrengthOption)
+
+def MutatorSettingsAddGravityOption(builder, gravityOption):
+    builder.PrependInt8Slot(13, gravityOption, 0)
+
+def AddGravityOption(builder, gravityOption):
+    MutatorSettingsAddGravityOption(builder, gravityOption)
+
+def MutatorSettingsAddDemolishOption(builder, demolishOption):
+    builder.PrependInt8Slot(14, demolishOption, 0)
+
+def AddDemolishOption(builder, demolishOption):
+    MutatorSettingsAddDemolishOption(builder, demolishOption)
+
+def MutatorSettingsAddRespawnTimeOption(builder, respawnTimeOption):
+    builder.PrependInt8Slot(15, respawnTimeOption, 0)
+
+def AddRespawnTimeOption(builder, respawnTimeOption):
+    MutatorSettingsAddRespawnTimeOption(builder, respawnTimeOption)
+
+def MutatorSettingsEnd(builder):
+    return builder.EndObject()
+
+def End(builder):
+    return MutatorSettingsEnd(builder)
+
+
+class MutatorSettingsT(object):
+
+    # MutatorSettingsT
+    def __init__(self):
+        self.matchLength = 0  # type: int
+        self.maxScore = 0  # type: int
+        self.overtimeOption = 0  # type: int
+        self.seriesLengthOption = 0  # type: int
+        self.gameSpeedOption = 0  # type: int
+        self.ballMaxSpeedOption = 0  # type: int
+        self.ballTypeOption = 0  # type: int
+        self.ballWeightOption = 0  # type: int
+        self.ballSizeOption = 0  # type: int
+        self.ballBouncinessOption = 0  # type: int
+        self.boostOption = 0  # type: int
+        self.rumbleOption = 0  # type: int
+        self.boostStrengthOption = 0  # type: int
+        self.gravityOption = 0  # type: int
+        self.demolishOption = 0  # type: int
+        self.respawnTimeOption = 0  # type: int
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        mutatorSettings = MutatorSettings()
+        mutatorSettings.Init(buf, pos)
+        return cls.InitFromObj(mutatorSettings)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, mutatorSettings):
+        x = MutatorSettingsT()
+        x._UnPack(mutatorSettings)
+        return x
+
+    # MutatorSettingsT
+    def _UnPack(self, mutatorSettings):
+        if mutatorSettings is None:
+            return
+        self.matchLength = mutatorSettings.MatchLength()
+        self.maxScore = mutatorSettings.MaxScore()
+        self.overtimeOption = mutatorSettings.OvertimeOption()
+        self.seriesLengthOption = mutatorSettings.SeriesLengthOption()
+        self.gameSpeedOption = mutatorSettings.GameSpeedOption()
+        self.ballMaxSpeedOption = mutatorSettings.BallMaxSpeedOption()
+        self.ballTypeOption = mutatorSettings.BallTypeOption()
+        self.ballWeightOption = mutatorSettings.BallWeightOption()
+        self.ballSizeOption = mutatorSettings.BallSizeOption()
+        self.ballBouncinessOption = mutatorSettings.BallBouncinessOption()
+        self.boostOption = mutatorSettings.BoostOption()
+        self.rumbleOption = mutatorSettings.RumbleOption()
+        self.boostStrengthOption = mutatorSettings.BoostStrengthOption()
+        self.gravityOption = mutatorSettings.GravityOption()
+        self.demolishOption = mutatorSettings.DemolishOption()
+        self.respawnTimeOption = mutatorSettings.RespawnTimeOption()
+
+    # MutatorSettingsT
+    def Pack(self, builder):
+        MutatorSettingsStart(builder)
+        MutatorSettingsAddMatchLength(builder, self.matchLength)
+        MutatorSettingsAddMaxScore(builder, self.maxScore)
+        MutatorSettingsAddOvertimeOption(builder, self.overtimeOption)
+        MutatorSettingsAddSeriesLengthOption(builder, self.seriesLengthOption)
+        MutatorSettingsAddGameSpeedOption(builder, self.gameSpeedOption)
+        MutatorSettingsAddBallMaxSpeedOption(builder, self.ballMaxSpeedOption)
+        MutatorSettingsAddBallTypeOption(builder, self.ballTypeOption)
+        MutatorSettingsAddBallWeightOption(builder, self.ballWeightOption)
+        MutatorSettingsAddBallSizeOption(builder, self.ballSizeOption)
+        MutatorSettingsAddBallBouncinessOption(builder, self.ballBouncinessOption)
+        MutatorSettingsAddBoostOption(builder, self.boostOption)
+        MutatorSettingsAddRumbleOption(builder, self.rumbleOption)
+        MutatorSettingsAddBoostStrengthOption(builder, self.boostStrengthOption)
+        MutatorSettingsAddGravityOption(builder, self.gravityOption)
+        MutatorSettingsAddDemolishOption(builder, self.demolishOption)
+        MutatorSettingsAddRespawnTimeOption(builder, self.respawnTimeOption)
+        mutatorSettings = MutatorSettingsEnd(builder)
+        return mutatorSettings

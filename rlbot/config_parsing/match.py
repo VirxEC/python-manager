@@ -178,13 +178,13 @@ def get_main_executable_path(config: dict[str, Any]) -> Optional[Path]:
 
 def get_match_settings(
     config: dict[str, Any]
-) -> tuple[MatchSettings.MatchSettings, bytearray]:
+) -> tuple[MatchSettings.MatchSettingsT, bytearray]:
     builder = Builder(1000)
     match_settings_offset = write_match_settings(builder, config)
     builder.Finish(match_settings_offset)
     raw_bytes = builder.Output()
     match_settings = MatchSettings.MatchSettings.GetRootAsMatchSettings(raw_bytes, 0)
-    return match_settings, raw_bytes
+    return MatchSettings.MatchSettingsT.InitFromObj(match_settings), raw_bytes
 
 
 def write_match_settings(builder: Builder, config: dict[str, Any]) -> int:

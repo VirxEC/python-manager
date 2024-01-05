@@ -8,4 +8,3 @@ class BoostOption(object):
     Slow_Recharge = 2
     Rapid_Recharge = 3
     No_Boost = 4
-

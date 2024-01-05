@@ -3,9 +3,15 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
 class Float(object):
     __slots__ = ['_tab']
+
+    @classmethod
+    def SizeOf(cls):
+        return 4
 
     # Float
     def Init(self, buf, pos):
@@ -18,3 +24,37 @@ def CreateFloat(builder, val):
     builder.Prep(4, 4)
     builder.PrependFloat32(val)
     return builder.Offset()
+
+
+class FloatT(object):
+
+    # FloatT
+    def __init__(self):
+        self.val = 0.0  # type: float
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        float = Float()
+        float.Init(buf, pos)
+        return cls.InitFromObj(float)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, float):
+        x = FloatT()
+        x._UnPack(float)
+        return x
+
+    # FloatT
+    def _UnPack(self, float):
+        if float is None:
+            return
+        self.val = float.Val()
+
+    # FloatT
+    def Pack(self, builder):
+        return CreateFloat(builder, self.val)

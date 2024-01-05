@@ -8,3 +8,17 @@ class GameMessage(object):
     PlayerSpectate = 2
     PlayerInputChange = 3
 
+def GameMessageCreator(unionType, table):
+    from flatbuffers.table import Table
+    if not isinstance(table, Table):
+        return None
+    if unionType == GameMessage().PlayerStatEvent:
+        import rlbot.flat.PlayerStatEvent
+        return rlbot.flat.PlayerStatEvent.PlayerStatEventT.InitFromBuf(table.Bytes, table.Pos)
+    if unionType == GameMessage().PlayerSpectate:
+        import rlbot.flat.PlayerSpectate
+        return rlbot.flat.PlayerSpectate.PlayerSpectateT.InitFromBuf(table.Bytes, table.Pos)
+    if unionType == GameMessage().PlayerInputChange:
+        import rlbot.flat.PlayerInputChange
+        return rlbot.flat.PlayerInputChange.PlayerInputChangeT.InitFromBuf(table.Bytes, table.Pos)
+    return None

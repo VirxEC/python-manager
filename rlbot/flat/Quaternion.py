@@ -3,12 +3,18 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
-# /// Expresses the rotation state of an object.
-# /// Learn about quaternions here: https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
-# /// You can tinker with them here to build an intuition: https://quaternions.online/
+# Expresses the rotation state of an object.
+# Learn about quaternions here: https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
+# You can tinker with them here to build an intuition: https://quaternions.online/
 class Quaternion(object):
     __slots__ = ['_tab']
+
+    @classmethod
+    def SizeOf(cls):
+        return 16
 
     # Quaternion
     def Init(self, buf, pos):
@@ -30,3 +36,43 @@ def CreateQuaternion(builder, x, y, z, w):
     builder.PrependFloat32(y)
     builder.PrependFloat32(x)
     return builder.Offset()
+
+
+class QuaternionT(object):
+
+    # QuaternionT
+    def __init__(self):
+        self.x = 0.0  # type: float
+        self.y = 0.0  # type: float
+        self.z = 0.0  # type: float
+        self.w = 0.0  # type: float
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        quaternion = Quaternion()
+        quaternion.Init(buf, pos)
+        return cls.InitFromObj(quaternion)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, quaternion):
+        x = QuaternionT()
+        x._UnPack(quaternion)
+        return x
+
+    # QuaternionT
+    def _UnPack(self, quaternion):
+        if quaternion is None:
+            return
+        self.x = quaternion.X()
+        self.y = quaternion.Y()
+        self.z = quaternion.Z()
+        self.w = quaternion.W()
+
+    # QuaternionT
+    def Pack(self, builder):
+        return CreateQuaternion(builder, self.x, self.y, self.z, self.w)

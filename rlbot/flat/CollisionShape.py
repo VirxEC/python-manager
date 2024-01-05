@@ -8,3 +8,17 @@ class CollisionShape(object):
     SphereShape = 2
     CylinderShape = 3
 
+def CollisionShapeCreator(unionType, table):
+    from flatbuffers.table import Table
+    if not isinstance(table, Table):
+        return None
+    if unionType == CollisionShape().BoxShape:
+        import rlbot.flat.BoxShape
+        return rlbot.flat.BoxShape.BoxShapeT.InitFromBuf(table.Bytes, table.Pos)
+    if unionType == CollisionShape().SphereShape:
+        import rlbot.flat.SphereShape
+        return rlbot.flat.SphereShape.SphereShapeT.InitFromBuf(table.Bytes, table.Pos)
+    if unionType == CollisionShape().CylinderShape:
+        import rlbot.flat.CylinderShape
+        return rlbot.flat.CylinderShape.CylinderShapeT.InitFromBuf(table.Bytes, table.Pos)
+    return None

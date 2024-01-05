@@ -11,4 +11,3 @@ class RenderType(object):
     DrawString2D = 6
     DrawString3D = 7
     DrawCenteredRect3D = 8
-

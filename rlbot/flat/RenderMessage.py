@@ -3,17 +3,23 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
 class RenderMessage(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsRenderMessage(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = RenderMessage()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsRenderMessage(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # RenderMessage
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
@@ -30,37 +36,37 @@ class RenderMessage(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
         if o != 0:
             x = self._tab.Indirect(o + self._tab.Pos)
-            from .Color import Color
+            from rlbot.flat.Color import Color
             obj = Color()
             obj.Init(self._tab.Bytes, x)
             return obj
         return None
 
-# /// For 2d renders this only grabs x and y
+    # For 2d renders this only grabs x and y
     # RenderMessage
     def Start(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
         if o != 0:
             x = o + self._tab.Pos
-            from .Vector3 import Vector3
+            from rlbot.flat.Vector3 import Vector3
             obj = Vector3()
             obj.Init(self._tab.Bytes, x)
             return obj
         return None
 
-# /// For 2d renders this only grabs x and y
+    # For 2d renders this only grabs x and y
     # RenderMessage
     def End(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
         if o != 0:
             x = o + self._tab.Pos
-            from .Vector3 import Vector3
+            from rlbot.flat.Vector3 import Vector3
             obj = Vector3()
             obj.Init(self._tab.Bytes, x)
             return obj
         return None
 
-# /// Scales the x size of the text/rectangle, is used for rectangles assuming an initial value of 1
+    # Scales the x size of the text/rectangle, is used for rectangles assuming an initial value of 1
     # RenderMessage
     def ScaleX(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
@@ -68,7 +74,7 @@ class RenderMessage(object):
             return self._tab.Get(flatbuffers.number_types.Int32Flags, o + self._tab.Pos)
         return 1
 
-# /// Scales the y size of the text/rectangle, is used for rectangles assuming an initial value of 1
+    # Scales the y size of the text/rectangle, is used for rectangles assuming an initial value of 1
     # RenderMessage
     def ScaleY(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
@@ -81,23 +87,149 @@ class RenderMessage(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(16))
         if o != 0:
             return self._tab.String(o + self._tab.Pos)
-        return bytes()
+        return None
 
-# /// Rectangles can be filled or just outlines.
+    # Rectangles can be filled or just outlines.
     # RenderMessage
     def IsFilled(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(18))
         if o != 0:
-            return self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos)
-        return 0
+            return bool(self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos))
+        return False
 
-def RenderMessageStart(builder): builder.StartObject(8)
-def RenderMessageAddRenderType(builder, renderType): builder.PrependInt8Slot(0, renderType, 1)
-def RenderMessageAddColor(builder, color): builder.PrependUOffsetTRelativeSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(color), 0)
-def RenderMessageAddStart(builder, start): builder.PrependStructSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(start), 0)
-def RenderMessageAddEnd(builder, end): builder.PrependStructSlot(3, flatbuffers.number_types.UOffsetTFlags.py_type(end), 0)
-def RenderMessageAddScaleX(builder, scaleX): builder.PrependInt32Slot(4, scaleX, 1)
-def RenderMessageAddScaleY(builder, scaleY): builder.PrependInt32Slot(5, scaleY, 1)
-def RenderMessageAddText(builder, text): builder.PrependUOffsetTRelativeSlot(6, flatbuffers.number_types.UOffsetTFlags.py_type(text), 0)
-def RenderMessageAddIsFilled(builder, isFilled): builder.PrependBoolSlot(7, isFilled, 0)
-def RenderMessageEnd(builder): return builder.EndObject()
+def RenderMessageStart(builder):
+    builder.StartObject(8)
+
+def Start(builder):
+    RenderMessageStart(builder)
+
+def RenderMessageAddRenderType(builder, renderType):
+    builder.PrependInt8Slot(0, renderType, 1)
+
+def AddRenderType(builder, renderType):
+    RenderMessageAddRenderType(builder, renderType)
+
+def RenderMessageAddColor(builder, color):
+    builder.PrependUOffsetTRelativeSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(color), 0)
+
+def AddColor(builder, color):
+    RenderMessageAddColor(builder, color)
+
+def RenderMessageAddStart(builder, start):
+    builder.PrependStructSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(start), 0)
+
+def AddStart(builder, start):
+    RenderMessageAddStart(builder, start)
+
+def RenderMessageAddEnd(builder, end):
+    builder.PrependStructSlot(3, flatbuffers.number_types.UOffsetTFlags.py_type(end), 0)
+
+def AddEnd(builder, end):
+    RenderMessageAddEnd(builder, end)
+
+def RenderMessageAddScaleX(builder, scaleX):
+    builder.PrependInt32Slot(4, scaleX, 1)
+
+def AddScaleX(builder, scaleX):
+    RenderMessageAddScaleX(builder, scaleX)
+
+def RenderMessageAddScaleY(builder, scaleY):
+    builder.PrependInt32Slot(5, scaleY, 1)
+
+def AddScaleY(builder, scaleY):
+    RenderMessageAddScaleY(builder, scaleY)
+
+def RenderMessageAddText(builder, text):
+    builder.PrependUOffsetTRelativeSlot(6, flatbuffers.number_types.UOffsetTFlags.py_type(text), 0)
+
+def AddText(builder, text):
+    RenderMessageAddText(builder, text)
+
+def RenderMessageAddIsFilled(builder, isFilled):
+    builder.PrependBoolSlot(7, isFilled, 0)
+
+def AddIsFilled(builder, isFilled):
+    RenderMessageAddIsFilled(builder, isFilled)
+
+def RenderMessageEnd(builder):
+    return builder.EndObject()
+
+def End(builder):
+    return RenderMessageEnd(builder)
+
+import rlbot.flat.Color
+import rlbot.flat.Vector3
+try:
+    from typing import Optional
+except:
+    pass
+
+class RenderMessageT(object):
+
+    # RenderMessageT
+    def __init__(self):
+        self.renderType = 1  # type: int
+        self.color = None  # type: Optional[rlbot.flat.Color.ColorT]
+        self.start = None  # type: Optional[rlbot.flat.Vector3.Vector3T]
+        self.end = None  # type: Optional[rlbot.flat.Vector3.Vector3T]
+        self.scaleX = 1  # type: int
+        self.scaleY = 1  # type: int
+        self.text = None  # type: str
+        self.isFilled = False  # type: bool
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        renderMessage = RenderMessage()
+        renderMessage.Init(buf, pos)
+        return cls.InitFromObj(renderMessage)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, renderMessage):
+        x = RenderMessageT()
+        x._UnPack(renderMessage)
+        return x
+
+    # RenderMessageT
+    def _UnPack(self, renderMessage):
+        if renderMessage is None:
+            return
+        self.renderType = renderMessage.RenderType()
+        if renderMessage.Color() is not None:
+            self.color = rlbot.flat.Color.ColorT.InitFromObj(renderMessage.Color())
+        if renderMessage.Start() is not None:
+            self.start = rlbot.flat.Vector3.Vector3T.InitFromObj(renderMessage.Start())
+        if renderMessage.End() is not None:
+            self.end = rlbot.flat.Vector3.Vector3T.InitFromObj(renderMessage.End())
+        self.scaleX = renderMessage.ScaleX()
+        self.scaleY = renderMessage.ScaleY()
+        self.text = renderMessage.Text()
+        self.isFilled = renderMessage.IsFilled()
+
+    # RenderMessageT
+    def Pack(self, builder):
+        if self.color is not None:
+            color = self.color.Pack(builder)
+        if self.text is not None:
+            text = builder.CreateString(self.text)
+        RenderMessageStart(builder)
+        RenderMessageAddRenderType(builder, self.renderType)
+        if self.color is not None:
+            RenderMessageAddColor(builder, color)
+        if self.start is not None:
+            start = self.start.Pack(builder)
+            RenderMessageAddStart(builder, start)
+        if self.end is not None:
+            end = self.end.Pack(builder)
+            RenderMessageAddEnd(builder, end)
+        RenderMessageAddScaleX(builder, self.scaleX)
+        RenderMessageAddScaleY(builder, self.scaleY)
+        if self.text is not None:
+            RenderMessageAddText(builder, text)
+        RenderMessageAddIsFilled(builder, self.isFilled)
+        renderMessage = RenderMessageEnd(builder)
+        return renderMessage

@@ -7,4 +7,3 @@ class BallSizeOption(object):
     Small = 1
     Large = 2
     Gigantic = 3
-

@@ -1,16 +1,16 @@
 from threading import Thread
 
-from rlbot.flat.FieldInfo import FieldInfo
-from rlbot.flat.GameTickPacket import GameTickPacket
-from rlbot.flat.MatchSettings import MatchSettings
+from rlbot.flat.FieldInfo import FieldInfoT
+from rlbot.flat.GameTickPacket import GameTickPacketT
+from rlbot.flat.MatchSettings import MatchSettingsT
 from rlbot.game_manager.interface import SocketRelay
 
 
 class SocketDataReporter:
     def __init__(self):
-        self.latest_packet: GameTickPacket = None
-        self.latest_field_info: FieldInfo = None
-        self.latest_match_settings: MatchSettings = None
+        self.latest_packet = GameTickPacketT()
+        self.latest_field_info = FieldInfoT()
+        self.latest_match_settings = MatchSettingsT()
 
         self.socket_relay = SocketRelay()
         self.socket_relay.packet_handlers.append(self._handle_packet)
@@ -23,22 +23,22 @@ class SocketDataReporter:
 
         self.thread.start()
 
-    def _handle_packet(self, packet: GameTickPacket):
+    def _handle_packet(self, packet: GameTickPacketT):
         self.latest_packet = packet
 
-    def _handle_field_info(self, field_info: FieldInfo):
+    def _handle_field_info(self, field_info: FieldInfoT):
         self.latest_field_info = field_info
 
-    def _handle_match_settings(self, match_settings: MatchSettings):
+    def _handle_match_settings(self, match_settings: MatchSettingsT):
         self.latest_match_settings = match_settings
 
     def disconnect(self):
         self.socket_relay.disconnect()
 
 
-def get_one_packet() -> GameTickPacket:
+def get_one_packet() -> GameTickPacketT:
     socket_relay = SocketRelay()
-    packet = None
+    packet = GameTickPacketT()
 
     def handle_packet(p):
         nonlocal packet

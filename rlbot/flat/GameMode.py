@@ -10,4 +10,3 @@ class GameMode(object):
     Rumble = 4
     Heatseeker = 5
     Gridiron = 6
-

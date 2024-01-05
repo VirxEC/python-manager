@@ -3,21 +3,71 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
-# /// A normal human player
+# A normal human player
 class HumanPlayer(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsHumanPlayer(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = HumanPlayer()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsHumanPlayer(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # HumanPlayer
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
 
-def HumanPlayerStart(builder): builder.StartObject(0)
-def HumanPlayerEnd(builder): return builder.EndObject()
+def HumanPlayerStart(builder):
+    builder.StartObject(0)
+
+def Start(builder):
+    HumanPlayerStart(builder)
+
+def HumanPlayerEnd(builder):
+    return builder.EndObject()
+
+def End(builder):
+    return HumanPlayerEnd(builder)
+
+
+class HumanPlayerT(object):
+
+    # HumanPlayerT
+    def __init__(self):
+        pass
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        humanPlayer = HumanPlayer()
+        humanPlayer.Init(buf, pos)
+        return cls.InitFromObj(humanPlayer)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, humanPlayer):
+        x = HumanPlayerT()
+        x._UnPack(humanPlayer)
+        return x
+
+    # HumanPlayerT
+    def _UnPack(self, humanPlayer):
+        if humanPlayer is None:
+            return
+
+    # HumanPlayerT
+    def Pack(self, builder):
+        HumanPlayerStart(builder)
+        humanPlayer = HumanPlayerEnd(builder)
+        return humanPlayer

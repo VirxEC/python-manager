@@ -6,4 +6,3 @@ class GameSpeedOption(object):
     Default = 0
     Slo_Mo = 1
     Time_Warp = 2
-

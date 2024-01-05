@@ -3,17 +3,23 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
 class BallInfo(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsBallInfo(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = BallInfo()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsBallInfo(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # BallInfo
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
@@ -23,7 +29,7 @@ class BallInfo(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
         if o != 0:
             x = self._tab.Indirect(o + self._tab.Pos)
-            from .Physics import Physics
+            from rlbot.flat.Physics import Physics
             obj = Physics()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -34,7 +40,7 @@ class BallInfo(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
         if o != 0:
             x = self._tab.Indirect(o + self._tab.Pos)
-            from .Touch import Touch
+            from rlbot.flat.Touch import Touch
             obj = Touch()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -45,7 +51,7 @@ class BallInfo(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
         if o != 0:
             x = self._tab.Indirect(o + self._tab.Pos)
-            from .DropShotBallInfo import DropShotBallInfo
+            from rlbot.flat.DropShotBallInfo import DropShotBallInfo
             obj = DropShotBallInfo()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -68,10 +74,119 @@ class BallInfo(object):
             return obj
         return None
 
-def BallInfoStart(builder): builder.StartObject(5)
-def BallInfoAddPhysics(builder, physics): builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(physics), 0)
-def BallInfoAddLatestTouch(builder, latestTouch): builder.PrependUOffsetTRelativeSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(latestTouch), 0)
-def BallInfoAddDropShotInfo(builder, dropShotInfo): builder.PrependUOffsetTRelativeSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(dropShotInfo), 0)
-def BallInfoAddShapeType(builder, shapeType): builder.PrependUint8Slot(3, shapeType, 0)
-def BallInfoAddShape(builder, shape): builder.PrependUOffsetTRelativeSlot(4, flatbuffers.number_types.UOffsetTFlags.py_type(shape), 0)
-def BallInfoEnd(builder): return builder.EndObject()
+def BallInfoStart(builder):
+    builder.StartObject(5)
+
+def Start(builder):
+    BallInfoStart(builder)
+
+def BallInfoAddPhysics(builder, physics):
+    builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(physics), 0)
+
+def AddPhysics(builder, physics):
+    BallInfoAddPhysics(builder, physics)
+
+def BallInfoAddLatestTouch(builder, latestTouch):
+    builder.PrependUOffsetTRelativeSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(latestTouch), 0)
+
+def AddLatestTouch(builder, latestTouch):
+    BallInfoAddLatestTouch(builder, latestTouch)
+
+def BallInfoAddDropShotInfo(builder, dropShotInfo):
+    builder.PrependUOffsetTRelativeSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(dropShotInfo), 0)
+
+def AddDropShotInfo(builder, dropShotInfo):
+    BallInfoAddDropShotInfo(builder, dropShotInfo)
+
+def BallInfoAddShapeType(builder, shapeType):
+    builder.PrependUint8Slot(3, shapeType, 0)
+
+def AddShapeType(builder, shapeType):
+    BallInfoAddShapeType(builder, shapeType)
+
+def BallInfoAddShape(builder, shape):
+    builder.PrependUOffsetTRelativeSlot(4, flatbuffers.number_types.UOffsetTFlags.py_type(shape), 0)
+
+def AddShape(builder, shape):
+    BallInfoAddShape(builder, shape)
+
+def BallInfoEnd(builder):
+    return builder.EndObject()
+
+def End(builder):
+    return BallInfoEnd(builder)
+
+import rlbot.flat.BoxShape
+import rlbot.flat.CollisionShape
+import rlbot.flat.CylinderShape
+import rlbot.flat.DropShotBallInfo
+import rlbot.flat.Physics
+import rlbot.flat.SphereShape
+import rlbot.flat.Touch
+try:
+    from typing import Optional, Union
+except:
+    pass
+
+class BallInfoT(object):
+
+    # BallInfoT
+    def __init__(self):
+        self.physics = None  # type: Optional[rlbot.flat.Physics.PhysicsT]
+        self.latestTouch = None  # type: Optional[rlbot.flat.Touch.TouchT]
+        self.dropShotInfo = None  # type: Optional[rlbot.flat.DropShotBallInfo.DropShotBallInfoT]
+        self.shapeType = 0  # type: int
+        self.shape = None  # type: Union[None, rlbot.flat.BoxShape.BoxShapeT, rlbot.flat.SphereShape.SphereShapeT, rlbot.flat.CylinderShape.CylinderShapeT]
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        ballInfo = BallInfo()
+        ballInfo.Init(buf, pos)
+        return cls.InitFromObj(ballInfo)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, ballInfo):
+        x = BallInfoT()
+        x._UnPack(ballInfo)
+        return x
+
+    # BallInfoT
+    def _UnPack(self, ballInfo):
+        if ballInfo is None:
+            return
+        if ballInfo.Physics() is not None:
+            self.physics = rlbot.flat.Physics.PhysicsT.InitFromObj(ballInfo.Physics())
+        if ballInfo.LatestTouch() is not None:
+            self.latestTouch = rlbot.flat.Touch.TouchT.InitFromObj(ballInfo.LatestTouch())
+        if ballInfo.DropShotInfo() is not None:
+            self.dropShotInfo = rlbot.flat.DropShotBallInfo.DropShotBallInfoT.InitFromObj(ballInfo.DropShotInfo())
+        self.shapeType = ballInfo.ShapeType()
+        self.shape = rlbot.flat.CollisionShape.CollisionShapeCreator(self.shapeType, ballInfo.Shape())
+
+    # BallInfoT
+    def Pack(self, builder):
+        if self.physics is not None:
+            physics = self.physics.Pack(builder)
+        if self.latestTouch is not None:
+            latestTouch = self.latestTouch.Pack(builder)
+        if self.dropShotInfo is not None:
+            dropShotInfo = self.dropShotInfo.Pack(builder)
+        if self.shape is not None:
+            shape = self.shape.Pack(builder)
+        BallInfoStart(builder)
+        if self.physics is not None:
+            BallInfoAddPhysics(builder, physics)
+        if self.latestTouch is not None:
+            BallInfoAddLatestTouch(builder, latestTouch)
+        if self.dropShotInfo is not None:
+            BallInfoAddDropShotInfo(builder, dropShotInfo)
+        BallInfoAddShapeType(builder, self.shapeType)
+        if self.shape is not None:
+            BallInfoAddShape(builder, shape)
+        ballInfo = BallInfoEnd(builder)
+        return ballInfo

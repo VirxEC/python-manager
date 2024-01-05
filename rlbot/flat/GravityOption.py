@@ -7,4 +7,3 @@ class GravityOption(object):
     Low = 1
     High = 2
     Super_High = 3
-

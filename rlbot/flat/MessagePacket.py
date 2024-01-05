@@ -3,19 +3,25 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
-# /// We have some very small messages that are only a few bytes but potentially sent at high frequency.
-# /// Bundle them into a packet to reduce the overhead of sending data over TCP.
+# We have some very small messages that are only a few bytes but potentially sent at high frequency.
+# Bundle them into a packet to reduce the overhead of sending data over TCP.
 class MessagePacket(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsMessagePacket(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = MessagePacket()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsMessagePacket(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # MessagePacket
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
@@ -27,7 +33,7 @@ class MessagePacket(object):
             x = self._tab.Vector(o)
             x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 4
             x = self._tab.Indirect(x)
-            from .GameMessageWrapper import GameMessageWrapper
+            from rlbot.flat.GameMessageWrapper import GameMessageWrapper
             obj = GameMessageWrapper()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -39,6 +45,11 @@ class MessagePacket(object):
         if o != 0:
             return self._tab.VectorLen(o)
         return 0
+
+    # MessagePacket
+    def MessagesIsNone(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
+        return o == 0
 
     # MessagePacket
     def GameSeconds(self):
@@ -54,9 +65,102 @@ class MessagePacket(object):
             return self._tab.Get(flatbuffers.number_types.Int32Flags, o + self._tab.Pos)
         return 0
 
-def MessagePacketStart(builder): builder.StartObject(3)
-def MessagePacketAddMessages(builder, messages): builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(messages), 0)
-def MessagePacketStartMessagesVector(builder, numElems): return builder.StartVector(4, numElems, 4)
-def MessagePacketAddGameSeconds(builder, gameSeconds): builder.PrependFloat32Slot(1, gameSeconds, 0.0)
-def MessagePacketAddFrameNum(builder, frameNum): builder.PrependInt32Slot(2, frameNum, 0)
-def MessagePacketEnd(builder): return builder.EndObject()
+def MessagePacketStart(builder):
+    builder.StartObject(3)
+
+def Start(builder):
+    MessagePacketStart(builder)
+
+def MessagePacketAddMessages(builder, messages):
+    builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(messages), 0)
+
+def AddMessages(builder, messages):
+    MessagePacketAddMessages(builder, messages)
+
+def MessagePacketStartMessagesVector(builder, numElems):
+    return builder.StartVector(4, numElems, 4)
+
+def StartMessagesVector(builder, numElems):
+    return MessagePacketStartMessagesVector(builder, numElems)
+
+def MessagePacketAddGameSeconds(builder, gameSeconds):
+    builder.PrependFloat32Slot(1, gameSeconds, 0.0)
+
+def AddGameSeconds(builder, gameSeconds):
+    MessagePacketAddGameSeconds(builder, gameSeconds)
+
+def MessagePacketAddFrameNum(builder, frameNum):
+    builder.PrependInt32Slot(2, frameNum, 0)
+
+def AddFrameNum(builder, frameNum):
+    MessagePacketAddFrameNum(builder, frameNum)
+
+def MessagePacketEnd(builder):
+    return builder.EndObject()
+
+def End(builder):
+    return MessagePacketEnd(builder)
+
+import rlbot.flat.GameMessageWrapper
+try:
+    from typing import List
+except:
+    pass
+
+class MessagePacketT(object):
+
+    # MessagePacketT
+    def __init__(self):
+        self.messages = None  # type: List[rlbot.flat.GameMessageWrapper.GameMessageWrapperT]
+        self.gameSeconds = 0.0  # type: float
+        self.frameNum = 0  # type: int
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        messagePacket = MessagePacket()
+        messagePacket.Init(buf, pos)
+        return cls.InitFromObj(messagePacket)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, messagePacket):
+        x = MessagePacketT()
+        x._UnPack(messagePacket)
+        return x
+
+    # MessagePacketT
+    def _UnPack(self, messagePacket):
+        if messagePacket is None:
+            return
+        if not messagePacket.MessagesIsNone():
+            self.messages = []
+            for i in range(messagePacket.MessagesLength()):
+                if messagePacket.Messages(i) is None:
+                    self.messages.append(None)
+                else:
+                    gameMessageWrapper_ = rlbot.flat.GameMessageWrapper.GameMessageWrapperT.InitFromObj(messagePacket.Messages(i))
+                    self.messages.append(gameMessageWrapper_)
+        self.gameSeconds = messagePacket.GameSeconds()
+        self.frameNum = messagePacket.FrameNum()
+
+    # MessagePacketT
+    def Pack(self, builder):
+        if self.messages is not None:
+            messageslist = []
+            for i in range(len(self.messages)):
+                messageslist.append(self.messages[i].Pack(builder))
+            MessagePacketStartMessagesVector(builder, len(self.messages))
+            for i in reversed(range(len(self.messages))):
+                builder.PrependUOffsetTRelative(messageslist[i])
+            messages = builder.EndVector()
+        MessagePacketStart(builder)
+        if self.messages is not None:
+            MessagePacketAddMessages(builder, messages)
+        MessagePacketAddGameSeconds(builder, self.gameSeconds)
+        MessagePacketAddFrameNum(builder, self.frameNum)
+        messagePacket = MessagePacketEnd(builder)
+        return messagePacket

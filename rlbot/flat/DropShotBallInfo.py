@@ -3,17 +3,23 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
 class DropShotBallInfo(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsDropShotBallInfo(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = DropShotBallInfo()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsDropShotBallInfo(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # DropShotBallInfo
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
@@ -39,8 +45,75 @@ class DropShotBallInfo(object):
             return self._tab.Get(flatbuffers.number_types.Float32Flags, o + self._tab.Pos)
         return 0.0
 
-def DropShotBallInfoStart(builder): builder.StartObject(3)
-def DropShotBallInfoAddAbsorbedForce(builder, absorbedForce): builder.PrependFloat32Slot(0, absorbedForce, 0.0)
-def DropShotBallInfoAddDamageIndex(builder, damageIndex): builder.PrependInt32Slot(1, damageIndex, 0)
-def DropShotBallInfoAddForceAccumRecent(builder, forceAccumRecent): builder.PrependFloat32Slot(2, forceAccumRecent, 0.0)
-def DropShotBallInfoEnd(builder): return builder.EndObject()
+def DropShotBallInfoStart(builder):
+    builder.StartObject(3)
+
+def Start(builder):
+    DropShotBallInfoStart(builder)
+
+def DropShotBallInfoAddAbsorbedForce(builder, absorbedForce):
+    builder.PrependFloat32Slot(0, absorbedForce, 0.0)
+
+def AddAbsorbedForce(builder, absorbedForce):
+    DropShotBallInfoAddAbsorbedForce(builder, absorbedForce)
+
+def DropShotBallInfoAddDamageIndex(builder, damageIndex):
+    builder.PrependInt32Slot(1, damageIndex, 0)
+
+def AddDamageIndex(builder, damageIndex):
+    DropShotBallInfoAddDamageIndex(builder, damageIndex)
+
+def DropShotBallInfoAddForceAccumRecent(builder, forceAccumRecent):
+    builder.PrependFloat32Slot(2, forceAccumRecent, 0.0)
+
+def AddForceAccumRecent(builder, forceAccumRecent):
+    DropShotBallInfoAddForceAccumRecent(builder, forceAccumRecent)
+
+def DropShotBallInfoEnd(builder):
+    return builder.EndObject()
+
+def End(builder):
+    return DropShotBallInfoEnd(builder)
+
+
+class DropShotBallInfoT(object):
+
+    # DropShotBallInfoT
+    def __init__(self):
+        self.absorbedForce = 0.0  # type: float
+        self.damageIndex = 0  # type: int
+        self.forceAccumRecent = 0.0  # type: float
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        dropShotBallInfo = DropShotBallInfo()
+        dropShotBallInfo.Init(buf, pos)
+        return cls.InitFromObj(dropShotBallInfo)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, dropShotBallInfo):
+        x = DropShotBallInfoT()
+        x._UnPack(dropShotBallInfo)
+        return x
+
+    # DropShotBallInfoT
+    def _UnPack(self, dropShotBallInfo):
+        if dropShotBallInfo is None:
+            return
+        self.absorbedForce = dropShotBallInfo.AbsorbedForce()
+        self.damageIndex = dropShotBallInfo.DamageIndex()
+        self.forceAccumRecent = dropShotBallInfo.ForceAccumRecent()
+
+    # DropShotBallInfoT
+    def Pack(self, builder):
+        DropShotBallInfoStart(builder)
+        DropShotBallInfoAddAbsorbedForce(builder, self.absorbedForce)
+        DropShotBallInfoAddDamageIndex(builder, self.damageIndex)
+        DropShotBallInfoAddForceAccumRecent(builder, self.forceAccumRecent)
+        dropShotBallInfo = DropShotBallInfoEnd(builder)
+        return dropShotBallInfo

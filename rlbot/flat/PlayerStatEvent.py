@@ -3,33 +3,39 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
-# /// Notification that a player triggers some in-game event, such as:
-# ///		Win, Loss, TimePlayed;
-# ///		Shot, Assist, Center, Clear, PoolShot;
-# ///		Goal, AerialGoal, BicycleGoal, BulletGoal, BackwardsGoal, LongGoal, OvertimeGoal, TurtleGoal;
-# ///		AerialHit, BicycleHit, BulletHit, JuggleHit, FirstTouch, BallHit;
-# ///		Save, EpicSave, FreezeSave;
-# ///		HatTrick, Savior, Playmaker, MVP;
-# ///		FastestGoal, SlowestGoal, FurthestGoal, OwnGoal;
-# ///		MostBallTouches, FewestBallTouches, MostBoostPickups, FewestBoostPickups, BoostPickups;
-# ///		CarTouches, Demolition, Demolish;
-# ///		LowFive, HighFive;
+# Notification that a player triggers some in-game event, such as:
+#		Win, Loss, TimePlayed;
+#		Shot, Assist, Center, Clear, PoolShot;
+#		Goal, AerialGoal, BicycleGoal, BulletGoal, BackwardsGoal, LongGoal, OvertimeGoal, TurtleGoal;
+#		AerialHit, BicycleHit, BulletHit, JuggleHit, FirstTouch, BallHit;
+#		Save, EpicSave, FreezeSave;
+#		HatTrick, Savior, Playmaker, MVP;
+#		FastestGoal, SlowestGoal, FurthestGoal, OwnGoal;
+#		MostBallTouches, FewestBallTouches, MostBoostPickups, FewestBoostPickups, BoostPickups;
+#		CarTouches, Demolition, Demolish;
+#		LowFive, HighFive;
 class PlayerStatEvent(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsPlayerStatEvent(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = PlayerStatEvent()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsPlayerStatEvent(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # PlayerStatEvent
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
 
-# /// index of the player associated with the event
+    # index of the player associated with the event
     # PlayerStatEvent
     def PlayerIndex(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
@@ -37,15 +43,77 @@ class PlayerStatEvent(object):
             return self._tab.Get(flatbuffers.number_types.Int32Flags, o + self._tab.Pos)
         return 0
 
-# /// Event type
+    # Event type
     # PlayerStatEvent
     def StatType(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
         if o != 0:
             return self._tab.String(o + self._tab.Pos)
-        return bytes()
+        return None
 
-def PlayerStatEventStart(builder): builder.StartObject(2)
-def PlayerStatEventAddPlayerIndex(builder, playerIndex): builder.PrependInt32Slot(0, playerIndex, 0)
-def PlayerStatEventAddStatType(builder, statType): builder.PrependUOffsetTRelativeSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(statType), 0)
-def PlayerStatEventEnd(builder): return builder.EndObject()
+def PlayerStatEventStart(builder):
+    builder.StartObject(2)
+
+def Start(builder):
+    PlayerStatEventStart(builder)
+
+def PlayerStatEventAddPlayerIndex(builder, playerIndex):
+    builder.PrependInt32Slot(0, playerIndex, 0)
+
+def AddPlayerIndex(builder, playerIndex):
+    PlayerStatEventAddPlayerIndex(builder, playerIndex)
+
+def PlayerStatEventAddStatType(builder, statType):
+    builder.PrependUOffsetTRelativeSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(statType), 0)
+
+def AddStatType(builder, statType):
+    PlayerStatEventAddStatType(builder, statType)
+
+def PlayerStatEventEnd(builder):
+    return builder.EndObject()
+
+def End(builder):
+    return PlayerStatEventEnd(builder)
+
+
+class PlayerStatEventT(object):
+
+    # PlayerStatEventT
+    def __init__(self):
+        self.playerIndex = 0  # type: int
+        self.statType = None  # type: str
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        playerStatEvent = PlayerStatEvent()
+        playerStatEvent.Init(buf, pos)
+        return cls.InitFromObj(playerStatEvent)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, playerStatEvent):
+        x = PlayerStatEventT()
+        x._UnPack(playerStatEvent)
+        return x
+
+    # PlayerStatEventT
+    def _UnPack(self, playerStatEvent):
+        if playerStatEvent is None:
+            return
+        self.playerIndex = playerStatEvent.PlayerIndex()
+        self.statType = playerStatEvent.StatType()
+
+    # PlayerStatEventT
+    def Pack(self, builder):
+        if self.statType is not None:
+            statType = builder.CreateString(self.statType)
+        PlayerStatEventStart(builder)
+        PlayerStatEventAddPlayerIndex(builder, self.playerIndex)
+        if self.statType is not None:
+            PlayerStatEventAddStatType(builder, statType)
+        playerStatEvent = PlayerStatEventEnd(builder)
+        return playerStatEvent

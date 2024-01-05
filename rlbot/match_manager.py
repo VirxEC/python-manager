@@ -1,5 +1,4 @@
 from pathlib import Path
-from time import sleep
 from typing import Any, Optional
 
 from rlbot import version
@@ -10,7 +9,7 @@ from rlbot.config_parsing.match import (
     get_match_settings,
 )
 from rlbot.config_parsing.util import load_config_file
-from rlbot.flat.MatchSettings import MatchSettings
+from rlbot.flat.MatchSettings import MatchSettingsT
 from rlbot.game_manager import launch
 from rlbot.game_manager.interface import SocketRelay
 from rlbot.game_manager.preference import (
@@ -29,7 +28,7 @@ class MatchManager:
         self.launcher_preference = DEFAULT_LAUNCHER_PREFERENCE
         self.main_executable_path: Optional[Path] = None
         self.game_interface: SocketRelay = SocketRelay()
-        self.match_settings: Optional[tuple[MatchSettings, bytearray]] = None
+        self.match_settings: Optional[tuple[MatchSettingsT, bytearray]] = None
         self.has_started = False
 
     def load_config_from_file(self, config_location: Path = DEFAULT_CONFIG_LOCATION):

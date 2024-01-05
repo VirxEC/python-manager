@@ -3,18 +3,24 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
-# /// Rigid body state for the ball.
+# Rigid body state for the ball.
 class BallRigidBodyState(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsBallRigidBodyState(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = BallRigidBodyState()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsBallRigidBodyState(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # BallRigidBodyState
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
@@ -24,12 +30,72 @@ class BallRigidBodyState(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
         if o != 0:
             x = self._tab.Indirect(o + self._tab.Pos)
-            from .RigidBodyState import RigidBodyState
+            from rlbot.flat.RigidBodyState import RigidBodyState
             obj = RigidBodyState()
             obj.Init(self._tab.Bytes, x)
             return obj
         return None
 
-def BallRigidBodyStateStart(builder): builder.StartObject(1)
-def BallRigidBodyStateAddState(builder, state): builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(state), 0)
-def BallRigidBodyStateEnd(builder): return builder.EndObject()
+def BallRigidBodyStateStart(builder):
+    builder.StartObject(1)
+
+def Start(builder):
+    BallRigidBodyStateStart(builder)
+
+def BallRigidBodyStateAddState(builder, state):
+    builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(state), 0)
+
+def AddState(builder, state):
+    BallRigidBodyStateAddState(builder, state)
+
+def BallRigidBodyStateEnd(builder):
+    return builder.EndObject()
+
+def End(builder):
+    return BallRigidBodyStateEnd(builder)
+
+import rlbot.flat.RigidBodyState
+try:
+    from typing import Optional
+except:
+    pass
+
+class BallRigidBodyStateT(object):
+
+    # BallRigidBodyStateT
+    def __init__(self):
+        self.state = None  # type: Optional[rlbot.flat.RigidBodyState.RigidBodyStateT]
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        ballRigidBodyState = BallRigidBodyState()
+        ballRigidBodyState.Init(buf, pos)
+        return cls.InitFromObj(ballRigidBodyState)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, ballRigidBodyState):
+        x = BallRigidBodyStateT()
+        x._UnPack(ballRigidBodyState)
+        return x
+
+    # BallRigidBodyStateT
+    def _UnPack(self, ballRigidBodyState):
+        if ballRigidBodyState is None:
+            return
+        if ballRigidBodyState.State() is not None:
+            self.state = rlbot.flat.RigidBodyState.RigidBodyStateT.InitFromObj(ballRigidBodyState.State())
+
+    # BallRigidBodyStateT
+    def Pack(self, builder):
+        if self.state is not None:
+            state = self.state.Pack(builder)
+        BallRigidBodyStateStart(builder)
+        if self.state is not None:
+            BallRigidBodyStateAddState(builder, state)
+        ballRigidBodyState = BallRigidBodyStateEnd(builder)
+        return ballRigidBodyState

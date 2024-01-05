@@ -3,17 +3,23 @@
 # namespace: flat
 
 import flatbuffers
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
 class GameInfo(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsGameInfo(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = GameInfo()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsGameInfo(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # GameInfo
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
@@ -36,41 +42,41 @@ class GameInfo(object):
     def IsOvertime(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
         if o != 0:
-            return self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos)
-        return 0
+            return bool(self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos))
+        return False
 
     # GameInfo
     def IsUnlimitedTime(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
         if o != 0:
-            return self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos)
-        return 0
+            return bool(self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos))
+        return False
 
-# /// True when cars are allowed to move, and during the pause menu. False during replays.
+    # True when cars are allowed to move, and during the pause menu. False during replays.
     # GameInfo
     def IsRoundActive(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
         if o != 0:
-            return self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos)
-        return 0
+            return bool(self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos))
+        return False
 
-# /// True when the clock is paused due to kickoff, but false during kickoff countdown. In other words, it is true
-# /// while cars can move during kickoff. Note that if both players sit still, game clock start and this will become false.
+    # True when the clock is paused due to kickoff, but false during kickoff countdown. In other words, it is true
+    # while cars can move during kickoff. Note that if both players sit still, game clock start and this will become false.
     # GameInfo
     def IsKickoffPause(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
         if o != 0:
-            return self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos)
-        return 0
+            return bool(self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos))
+        return False
 
-# /// Turns true after final replay, the moment the 'winner' screen appears. Remains true during next match
-# /// countdown. Turns false again the moment the 'choose team' screen appears.
+    # Turns true after final replay, the moment the 'winner' screen appears. Remains true during next match
+    # countdown. Turns false again the moment the 'choose team' screen appears.
     # GameInfo
     def IsMatchEnded(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(16))
         if o != 0:
-            return self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos)
-        return 0
+            return bool(self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos))
+        return False
 
     # GameInfo
     def WorldGravityZ(self):
@@ -79,7 +85,7 @@ class GameInfo(object):
             return self._tab.Get(flatbuffers.number_types.Float32Flags, o + self._tab.Pos)
         return 0.0
 
-# /// Game speed multiplier, 1.0 is regular game speed.
+    # Game speed multiplier, 1.0 is regular game speed.
     # GameInfo
     def GameSpeed(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(20))
@@ -87,9 +93,9 @@ class GameInfo(object):
             return self._tab.Get(flatbuffers.number_types.Float32Flags, o + self._tab.Pos)
         return 0.0
 
-# /// Tracks the number of physics frames the game has computed.
-# /// May increase by more than one across consecutive packets.
-# /// Data type will roll over after 207 days at 120Hz.
+    # Tracks the number of physics frames the game has computed.
+    # May increase by more than one across consecutive packets.
+    # Data type will roll over after 207 days at 120Hz.
     # GameInfo
     def FrameNum(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(22))
@@ -97,15 +103,138 @@ class GameInfo(object):
             return self._tab.Get(flatbuffers.number_types.Int32Flags, o + self._tab.Pos)
         return 0
 
-def GameInfoStart(builder): builder.StartObject(10)
-def GameInfoAddSecondsElapsed(builder, secondsElapsed): builder.PrependFloat32Slot(0, secondsElapsed, 0.0)
-def GameInfoAddGameTimeRemaining(builder, gameTimeRemaining): builder.PrependFloat32Slot(1, gameTimeRemaining, 0.0)
-def GameInfoAddIsOvertime(builder, isOvertime): builder.PrependBoolSlot(2, isOvertime, 0)
-def GameInfoAddIsUnlimitedTime(builder, isUnlimitedTime): builder.PrependBoolSlot(3, isUnlimitedTime, 0)
-def GameInfoAddIsRoundActive(builder, isRoundActive): builder.PrependBoolSlot(4, isRoundActive, 0)
-def GameInfoAddIsKickoffPause(builder, isKickoffPause): builder.PrependBoolSlot(5, isKickoffPause, 0)
-def GameInfoAddIsMatchEnded(builder, isMatchEnded): builder.PrependBoolSlot(6, isMatchEnded, 0)
-def GameInfoAddWorldGravityZ(builder, worldGravityZ): builder.PrependFloat32Slot(7, worldGravityZ, 0.0)
-def GameInfoAddGameSpeed(builder, gameSpeed): builder.PrependFloat32Slot(8, gameSpeed, 0.0)
-def GameInfoAddFrameNum(builder, frameNum): builder.PrependInt32Slot(9, frameNum, 0)
-def GameInfoEnd(builder): return builder.EndObject()
+def GameInfoStart(builder):
+    builder.StartObject(10)
+
+def Start(builder):
+    GameInfoStart(builder)
+
+def GameInfoAddSecondsElapsed(builder, secondsElapsed):
+    builder.PrependFloat32Slot(0, secondsElapsed, 0.0)
+
+def AddSecondsElapsed(builder, secondsElapsed):
+    GameInfoAddSecondsElapsed(builder, secondsElapsed)
+
+def GameInfoAddGameTimeRemaining(builder, gameTimeRemaining):
+    builder.PrependFloat32Slot(1, gameTimeRemaining, 0.0)
+
+def AddGameTimeRemaining(builder, gameTimeRemaining):
+    GameInfoAddGameTimeRemaining(builder, gameTimeRemaining)
+
+def GameInfoAddIsOvertime(builder, isOvertime):
+    builder.PrependBoolSlot(2, isOvertime, 0)
+
+def AddIsOvertime(builder, isOvertime):
+    GameInfoAddIsOvertime(builder, isOvertime)
+
+def GameInfoAddIsUnlimitedTime(builder, isUnlimitedTime):
+    builder.PrependBoolSlot(3, isUnlimitedTime, 0)
+
+def AddIsUnlimitedTime(builder, isUnlimitedTime):
+    GameInfoAddIsUnlimitedTime(builder, isUnlimitedTime)
+
+def GameInfoAddIsRoundActive(builder, isRoundActive):
+    builder.PrependBoolSlot(4, isRoundActive, 0)
+
+def AddIsRoundActive(builder, isRoundActive):
+    GameInfoAddIsRoundActive(builder, isRoundActive)
+
+def GameInfoAddIsKickoffPause(builder, isKickoffPause):
+    builder.PrependBoolSlot(5, isKickoffPause, 0)
+
+def AddIsKickoffPause(builder, isKickoffPause):
+    GameInfoAddIsKickoffPause(builder, isKickoffPause)
+
+def GameInfoAddIsMatchEnded(builder, isMatchEnded):
+    builder.PrependBoolSlot(6, isMatchEnded, 0)
+
+def AddIsMatchEnded(builder, isMatchEnded):
+    GameInfoAddIsMatchEnded(builder, isMatchEnded)
+
+def GameInfoAddWorldGravityZ(builder, worldGravityZ):
+    builder.PrependFloat32Slot(7, worldGravityZ, 0.0)
+
+def AddWorldGravityZ(builder, worldGravityZ):
+    GameInfoAddWorldGravityZ(builder, worldGravityZ)
+
+def GameInfoAddGameSpeed(builder, gameSpeed):
+    builder.PrependFloat32Slot(8, gameSpeed, 0.0)
+
+def AddGameSpeed(builder, gameSpeed):
+    GameInfoAddGameSpeed(builder, gameSpeed)
+
+def GameInfoAddFrameNum(builder, frameNum):
+    builder.PrependInt32Slot(9, frameNum, 0)
+
+def AddFrameNum(builder, frameNum):
+    GameInfoAddFrameNum(builder, frameNum)
+
+def GameInfoEnd(builder):
+    return builder.EndObject()
+
+def End(builder):
+    return GameInfoEnd(builder)
+
+
+class GameInfoT(object):
+
+    # GameInfoT
+    def __init__(self):
+        self.secondsElapsed = 0.0  # type: float
+        self.gameTimeRemaining = 0.0  # type: float
+        self.isOvertime = False  # type: bool
+        self.isUnlimitedTime = False  # type: bool
+        self.isRoundActive = False  # type: bool
+        self.isKickoffPause = False  # type: bool
+        self.isMatchEnded = False  # type: bool
+        self.worldGravityZ = 0.0  # type: float
+        self.gameSpeed = 0.0  # type: float
+        self.frameNum = 0  # type: int
+
+    @classmethod
+    def InitFromBuf(cls, buf, pos):
+        gameInfo = GameInfo()
+        gameInfo.Init(buf, pos)
+        return cls.InitFromObj(gameInfo)
+
+    @classmethod
+    def InitFromPackedBuf(cls, buf, pos=0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, pos)
+        return cls.InitFromBuf(buf, pos+n)
+
+    @classmethod
+    def InitFromObj(cls, gameInfo):
+        x = GameInfoT()
+        x._UnPack(gameInfo)
+        return x
+
+    # GameInfoT
+    def _UnPack(self, gameInfo):
+        if gameInfo is None:
+            return
+        self.secondsElapsed = gameInfo.SecondsElapsed()
+        self.gameTimeRemaining = gameInfo.GameTimeRemaining()
+        self.isOvertime = gameInfo.IsOvertime()
+        self.isUnlimitedTime = gameInfo.IsUnlimitedTime()
+        self.isRoundActive = gameInfo.IsRoundActive()
+        self.isKickoffPause = gameInfo.IsKickoffPause()
+        self.isMatchEnded = gameInfo.IsMatchEnded()
+        self.worldGravityZ = gameInfo.WorldGravityZ()
+        self.gameSpeed = gameInfo.GameSpeed()
+        self.frameNum = gameInfo.FrameNum()
+
+    # GameInfoT
+    def Pack(self, builder):
+        GameInfoStart(builder)
+        GameInfoAddSecondsElapsed(builder, self.secondsElapsed)
+        GameInfoAddGameTimeRemaining(builder, self.gameTimeRemaining)
+        GameInfoAddIsOvertime(builder, self.isOvertime)
+        GameInfoAddIsUnlimitedTime(builder, self.isUnlimitedTime)
+        GameInfoAddIsRoundActive(builder, self.isRoundActive)
+        GameInfoAddIsKickoffPause(builder, self.isKickoffPause)
+        GameInfoAddIsMatchEnded(builder, self.isMatchEnded)
+        GameInfoAddWorldGravityZ(builder, self.worldGravityZ)
+        GameInfoAddGameSpeed(builder, self.gameSpeed)
+        GameInfoAddFrameNum(builder, self.frameNum)
+        gameInfo = GameInfoEnd(builder)
+        return gameInfo
