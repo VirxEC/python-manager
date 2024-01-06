@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 
 from flatbuffers import Builder
 
@@ -97,14 +97,10 @@ def write_player_loadout(
     paint_config = loadout_config.get(PAINT_HEADER, DEFAULT_PAINT_CONFIG)
     paint_offset = write_player_paint_loadout(paint_config, builder)
 
-    primary_color_lookup = loadout_config.get(
-        PRIMARY_COLOR_LOOKUP, DEFAULT_LOADOUT_CONFIG[PRIMARY_COLOR_LOOKUP]
-    )
+    primary_color_lookup = loadout_config.get(PRIMARY_COLOR_LOOKUP)
     primary_color_offset = write_color(primary_color_lookup, builder)
 
-    secondary_color_lookup = loadout_config.get(
-        SECONDARY_COLOR_LOOKUP, DEFAULT_LOADOUT_CONFIG[SECONDARY_COLOR_LOOKUP]
-    )
+    secondary_color_lookup = loadout_config.get(SECONDARY_COLOR_LOOKUP)
     secondary_color_offset = write_color(secondary_color_lookup, builder)
 
     PlayerLoadout.PlayerLoadoutStart(builder)
@@ -131,9 +127,7 @@ def write_player_loadout(
     boost_id = loadout_config.get(BOOST_ID, DEFAULT_LOADOUT_CONFIG[BOOST_ID])
     PlayerLoadout.PlayerLoadoutAddBoostId(builder, boost_id)
 
-    antenna_id = loadout_config.get(
-        ANTENNA_ID, DEFAULT_LOADOUT_CONFIG[ANTENNA_ID]
-    )
+    antenna_id = loadout_config.get(ANTENNA_ID, DEFAULT_LOADOUT_CONFIG[ANTENNA_ID])
     PlayerLoadout.PlayerLoadoutAddAntennaId(builder, antenna_id)
 
     hat_id = loadout_config.get(HAT_ID, DEFAULT_LOADOUT_CONFIG[HAT_ID])
@@ -163,12 +157,22 @@ def write_player_loadout(
     PlayerLoadout.PlayerLoadoutAddGoalExplosionId(builder, goal_explosion_id)
 
     PlayerLoadout.PlayerLoadoutAddLoadoutPaint(builder, paint_offset)
-    PlayerLoadout.PlayerLoadoutAddPrimaryColorLookup(builder, primary_color_offset)
-    PlayerLoadout.PlayerLoadoutAddSecondaryColorLookup(builder, secondary_color_offset)
+
+    if primary_color_lookup is not None:
+        PlayerLoadout.PlayerLoadoutAddPrimaryColorLookup(builder, primary_color_offset)
+
+    if secondary_color_lookup is not None:
+        PlayerLoadout.PlayerLoadoutAddSecondaryColorLookup(
+            builder, secondary_color_offset
+        )
+
     return PlayerLoadout.PlayerLoadoutEnd(builder)
 
 
-def write_color(color: list[int], builder: Builder) -> int:
+def write_color(color: Optional[list[int]], builder: Builder) -> Optional[int]:
+    if color is None:
+        return None
+
     Color.ColorStart(builder)
     Color.ColorAddR(builder, color[0])
     Color.ColorAddG(builder, color[1])
@@ -180,9 +184,7 @@ def write_color(color: list[int], builder: Builder) -> int:
 def write_player_paint_loadout(paint_config: dict[str, Any], builder: Builder) -> int:
     LoadoutPaint.LoadoutPaintStart(builder)
 
-    car_paint_id = paint_config.get(
-        CAR_PAINT_ID, DEFAULT_PAINT_CONFIG[CAR_PAINT_ID]
-    )
+    car_paint_id = paint_config.get(CAR_PAINT_ID, DEFAULT_PAINT_CONFIG[CAR_PAINT_ID])
     LoadoutPaint.LoadoutPaintAddCarPaintId(builder, car_paint_id)
 
     decal_paint_id = paint_config.get(
@@ -205,9 +207,7 @@ def write_player_paint_loadout(paint_config: dict[str, Any], builder: Builder) -
     )
     LoadoutPaint.LoadoutPaintAddAntennaPaintId(builder, antenna_paint_id)
 
-    hat_paint_id = paint_config.get(
-        HAT_PAINT_ID, DEFAULT_PAINT_CONFIG[HAT_PAINT_ID]
-    )
+    hat_paint_id = paint_config.get(HAT_PAINT_ID, DEFAULT_PAINT_CONFIG[HAT_PAINT_ID])
     LoadoutPaint.LoadoutPaintAddHatPaintId(builder, hat_paint_id)
 
     trails_paint_id = paint_config.get(

@@ -1,6 +1,6 @@
 [settings]
 # Path to loadout config from runner
-looks_config = "./atba_looks.toml"
+looks_config = "./necto.toml"
 # The file to run to start the bot
 # Will automatically add .exe to the end on Windows
 bot_starter = "atba"

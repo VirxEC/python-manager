@@ -1,0 +1,75 @@
+[loadout.blue]
+# Primary Color selection
+team_color_id = 37
+# Secondary Color selection
+custom_color_id = 0
+# Car type (Octane, Merc, etc)
+car_id = 5713
+# Type of decal
+decal_id = 5854
+# Wheel selection
+wheels_id = 2614
+# Boost selection
+boost_id = 36
+# Antenna Selection
+antenna_id = 0
+# Hat Selection
+hat_id = 232
+# Paint Type (for first color)
+paint_finish_id = 270
+# Paint Type (for secondary color)
+custom_finish_id = 270
+# Engine Audio Selection
+engine_audio_id = 1788
+# Car trail Selection
+trails_id = 4507
+# Goal Explosion Selection
+goal_explosion_id = 4523
+
+[loadout.orange]
+# Primary Color selection
+team_color_id = 37
+# Secondary Color selection
+custom_color_id = 0
+# Car type (Octane, Merc, etc)
+car_id = 5713
+# Type of decal
+decal_id = 5854
+# Wheel selection
+wheels_id = 2614
+# Boost selection
+boost_id = 36
+# Antenna Selection
+antenna_id = 0
+# Hat Selection
+hat_id = 232
+# Paint Type (for first color)
+paint_finish_id = 270
+# Paint Type (for secondary color)
+custom_finish_id = 270
+# Engine Audio Selection
+engine_audio_id = 1788
+# Car trail Selection
+trails_id = 1898
+# Goal Explosion Selection
+goal_explosion_id = 4523
+
+[loadout.blue.paint]
+car_paint_id = 12
+decal_paint_id = 12
+wheels_paint_id = 12
+boost_paint_id = 4
+antenna_paint_id = 0
+hat_paint_id = 12
+trails_paint_id = 12
+goal_explosion_paint_id = 12
+
+[loadout.orange.paint]
+car_paint_id = 12
+decal_paint_id = 12
+wheels_paint_id = 12
+boost_paint_id = 10
+antenna_paint_id = 12
+hat_paint_id = 12
+trails_paint_id = 12
+goal_explosion_paint_id = 12
