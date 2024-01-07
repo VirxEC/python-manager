@@ -43,7 +43,6 @@ GAME_MAP_UPK = "game_map_upk"
 SKIP_REPLAYS = "skip_replays"
 INSTANT_START = "start_without_countdown"
 EXISTING_MATCH_BEHAVIOR = "existing_match_behavior"
-ENABLE_LOCKSTEP = "enable_lockstep"
 ENABLE_RENDERING = "enable_rendering"
 ENABLE_STATE_SETTING = "enable_state_setting"
 AUTO_SAVE_REPLAY = "auto_save_replay"
@@ -229,9 +228,6 @@ def write_match_settings(builder: Builder, config: dict[str, Any]) -> int:
         index_or_zero(
             EXISTING_MATCH_BEHAVIOR_TYPES, match_config.get(EXISTING_MATCH_BEHAVIOR)
         ),
-    )
-    MatchSettings.MatchSettingsAddEnableLockstep(
-        builder, match_config.get(ENABLE_LOCKSTEP)
     )
     MatchSettings.MatchSettingsAddEnableRendering(
         builder, match_config.get(ENABLE_RENDERING)
