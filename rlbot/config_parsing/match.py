@@ -176,15 +176,13 @@ def get_main_executable_path(config: dict[str, Any]) -> Optional[Path]:
         return Path(path)
 
 
-def get_match_settings(
-    config: dict[str, Any]
-) -> tuple[MatchSettings.MatchSettingsT, bytearray]:
+def get_match_settings(config: dict[str, Any]) -> MatchSettings.MatchSettingsT:
     builder = Builder(1000)
     match_settings_offset = write_match_settings(builder, config)
     builder.Finish(match_settings_offset)
     raw_bytes = builder.Output()
     match_settings = MatchSettings.MatchSettings.GetRootAsMatchSettings(raw_bytes, 0)
-    return MatchSettings.MatchSettingsT.InitFromObj(match_settings), raw_bytes
+    return MatchSettings.MatchSettingsT.InitFromObj(match_settings)
 
 
 def write_match_settings(builder: Builder, config: dict[str, Any]) -> int:

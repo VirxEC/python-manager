@@ -111,9 +111,13 @@ class SocketRelay:
         builder.Finish(game_state_offset)
         self.send_flatbuffer(builder, SocketDataType.DESIRED_GAME_STATE)
 
-    def start_match(self, match_settings: bytearray):
+    def start_match(self, match_settings: MatchSettingsT):
+        builder = Builder(400)
+        builder.Finish(match_settings.Pack(builder))
+        byte_array = builder.Output()
+
         def connect_handler():
-            self.send_bytes(match_settings, SocketDataType.MATCH_SETTINGS)
+            self.send_bytes(byte_array, SocketDataType.MATCH_SETTINGS)
 
         self.run_after_connect(connect_handler)
 
@@ -176,9 +180,14 @@ class SocketRelay:
             self.handle_incoming_messages()
 
     def handle_incoming_messages(self):
-        while self._should_continue:
-            incoming_message = read_from_socket(self.socket)
-            self.handle_incoming_message(incoming_message)
+        try:
+            while self._should_continue:
+                incoming_message = read_from_socket(self.socket)
+                self.handle_incoming_message(incoming_message)
+        except EOFError:
+            self.logger.info("Socket manager received unexpected EOF from core, closing socket.")
+            self.socket.close()
+            return
 
         self.socket.shutdown(SHUT_WR)
 
@@ -192,7 +201,7 @@ class SocketRelay:
 
                 if time() - start_time > 5:
                     self.logger.warn(
-                        "Socket manager did not receive EOF from RLBot.exe. Forcefully closing socket."
+                        "Socket manager did not receive EOF from core. Forcefully closing socket."
                     )
                     break
         except EOFError:

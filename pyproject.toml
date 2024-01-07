@@ -9,6 +9,7 @@ requires-python = ">= 3.11"
 dependencies = [
     "flatbuffers==23.5.26",
     "psutil==5.*",
+    "docopt==0.6.*"
 ]
 
 [tool.setuptools.dynamic]

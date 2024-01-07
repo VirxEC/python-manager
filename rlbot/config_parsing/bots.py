@@ -9,6 +9,7 @@ LOOKS_CONFIG = "looks_config"
 BOT_STARTER = "bot_starter"
 NAME = "name"
 MAX_TICK_RATE_PREF = "max_tick_rate_preference"
+LOGO_FILE = "logo_file"
 
 DETAILS_HEADER = "details"
 DESCRIPTION = "description"

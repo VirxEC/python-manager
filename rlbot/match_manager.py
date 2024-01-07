@@ -28,7 +28,7 @@ class MatchManager:
         self.launcher_preference = DEFAULT_LAUNCHER_PREFERENCE
         self.main_executable_path: Optional[Path] = None
         self.game_interface: SocketRelay = SocketRelay()
-        self.match_settings: Optional[tuple[MatchSettingsT, bytearray]] = None
+        self.match_settings: Optional[MatchSettingsT] = None
         self.has_started = False
 
     def load_config_from_file(self, config_location: Path = DEFAULT_CONFIG_LOCATION):
@@ -76,7 +76,7 @@ class MatchManager:
                 or DEFAULT_LAUNCHER_PREFERENCE
             )
             if not launch.launch_rocket_league(port=port, launcher_preference=pref):
-                raise Exception("Failed to launch Rocket League!")  
+                raise Exception("Failed to launch Rocket League!")
 
         self.has_started = True
 
@@ -109,8 +109,8 @@ class MatchManager:
             )
 
         self.logger.info("Python attempting to start match.")
-        self.game_interface.start_match(self.match_settings[1])
-        wait_until_valid_packet(self.match_settings[0])
+        self.game_interface.start_match(self.match_settings)
+        wait_until_valid_packet(self.match_settings)
         self.logger.info("Match has started")
 
         ta_settings.clean_up()

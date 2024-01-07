@@ -18,19 +18,3 @@ language = "Python 3"
 # NOTE: Only add the goalie tag if your bot only plays as a goalie; this directly contrasts with the teamplay tag!
 # NOTE: Only add a tag for a special game mode if you bot properly supports it
 tags = []
-
-[bot_parameters]
-# if true bot will turn opposite way
-flip_turning = false
-# if true bot will render random stuff
-test_rendering = false
-# if true bot will spam quickchats
-test_quickchat = false
-# if true bot will render dropshot info
-test_dropshot = false
-# if true bot will cause physics chaos with itself and the ball
-test_state = false
-# if true the bot will render the predicted path of the ball
-test_ball_prediction = false
-# if true the bot will print RB physics state
-test_physics_tick = false

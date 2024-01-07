@@ -23,3 +23,4 @@ I only wanted to go v4 code -> v5 code and not also have to translate Python to 
 ## Testing
 
 - You can test launching a match with `python tests/runner.py`
+- You can test the ATBA with `python tests/agents/atba/bot.py --main-executable-path="../core/RLBotCS/bin/Release/"`
