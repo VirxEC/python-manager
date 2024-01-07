@@ -31,14 +31,13 @@ class SocketDataType(IntEnum):
     FIELD_INFO = 2
     MATCH_SETTINGS = 3
     PLAYER_INPUT = 4
-    ACTOR_MAPPING = 5
-    COMPUTER_ID = 6
-    DESIRED_GAME_STATE = 7
-    RENDER_GROUP = 8
-    QUICK_CHAT = 9
-    BALL_PREDICTION = 10
-    READY_MESSAGE = 11
-    MESSAGE_PACKET = 12
+    DESIRED_GAME_STATE = 5
+    RENDER_GROUP = 6
+    REMOVE_RENDER_GROUP = 7
+    QUICK_CHAT = 8
+    BALL_PREDICTION = 9
+    READY_MESSAGE = 10
+    MESSAGE_PACKET = 11
 
 
 def int_to_bytes(val: int) -> bytes:
