@@ -188,10 +188,16 @@ def get_match_settings(
 
 
 def write_match_settings(builder: Builder, config: dict[str, Any]) -> int:
+    match_config = config.get(MATCH_HEADER, {})
+
+    num_participants = match_config.get(NUM_PARTICIPANTS, 0)
+    bot_configs = config.get(BOTS_HEADER, [])
+    num_participants = min(num_participants, len(bot_configs))
+
     name_dict = {}
     player_config_offsets = [
         write_player_configutation(pc, builder, name_dict)
-        for pc in config.get(BOTS_HEADER, [])
+        for pc in bot_configs[:num_participants]
     ]
 
     MatchSettings.MatchSettingsStartPlayerConfigurationsVector(
@@ -203,8 +209,6 @@ def write_match_settings(builder: Builder, config: dict[str, Any]) -> int:
 
     mutators = config.get(MUTATORS_HEADER, {})
     mutator_settings_offset = write_mutator_settings(mutators, builder)
-
-    match_config = config.get(MATCH_HEADER, {})
 
     game_map_upk = match_config.get(GAME_MAP_UPK, "DFHStadium")
     if game_map_upk in GAME_MAP_DICT:
