@@ -209,10 +209,8 @@ def write_match_settings(builder: Builder, config: dict[str, Any]) -> int:
     game_map_upk = match_config.get(GAME_MAP_UPK, "DFHStadium")
     if game_map_upk in GAME_MAP_DICT:
         upk = GAME_MAP_DICT[game_map_upk]
-        map_index = MAP_TYPES.index(game_map_upk)
     else:
         upk = game_map_upk
-        map_index = -1
     upk_offset = builder.CreateString(upk)
 
     MatchSettings.MatchSettingsStart(builder)
@@ -220,7 +218,6 @@ def write_match_settings(builder: Builder, config: dict[str, Any]) -> int:
     MatchSettings.MatchSettingsAddGameMode(
         builder, index_or_zero(GAME_MODE_TYPES, match_config.get(GAME_MODE))
     )
-    MatchSettings.MatchSettingsAddGameMap(builder, map_index)
     MatchSettings.MatchSettingsAddGameMapUpk(builder, upk_offset)
     MatchSettings.MatchSettingsAddSkipReplays(builder, match_config.get(SKIP_REPLAYS))
     MatchSettings.MatchSettingsAddInstantStart(builder, match_config.get(INSTANT_START))
