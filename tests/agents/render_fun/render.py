@@ -9,7 +9,7 @@ class Bot(StandaloneBot):
         self.zero_two = unzip_and_build_obj()
 
     def get_output(self, _):
-        # self.zero_two.render(self.renderer)
+        self.zero_two.render(self.renderer)
 
         return Controller()
 
