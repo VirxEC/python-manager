@@ -7,6 +7,8 @@ from typing import Callable
 from flatbuffers.builder import Builder
 
 from rlbot.flat import ReadyMessage
+from rlbot.flat.RemoveRenderGroup import RemoveRenderGroupT
+from rlbot.flat.RenderType import RenderType
 from rlbot.flat.BallPrediction import BallPrediction, BallPredictionT
 from rlbot.flat.ControllerState import ControllerStateT
 from rlbot.flat.DesiredGameState import DesiredGameStateT
@@ -20,6 +22,7 @@ from rlbot.flat.PlayerInputChange import PlayerInputChangeT
 from rlbot.flat.PlayerSpectate import PlayerSpectateT
 from rlbot.flat.PlayerStatEvent import PlayerStatEventT
 from rlbot.flat.QuickChat import QuickChat, QuickChatT
+from rlbot.flat.RenderGroup import RenderGroupT
 from rlbot.utils.logging import get_logger
 
 # We can connect to RLBot.exe on this port.
@@ -110,6 +113,31 @@ class SocketRelay:
         game_state_offset = state.Pack(builder)
         builder.Finish(game_state_offset)
         self.send_flatbuffer(builder, SocketDataType.DESIRED_GAME_STATE)
+
+    def send_render_group(self, render_group: RenderGroupT):
+        size = 0
+        # calculate the size needed because
+        # renders can be either kinda small or really big
+        for render in render_group.renderMessages:
+            if render.varietyType == RenderType.Line3D:
+                size += 28
+            elif render.varietyType == RenderType.PolyLine3D:
+                size += 4 + 12 * len(render.variety.points)
+            elif render.varietyType == RenderType.String2D:
+                size += 16 + len(render.variety.text)
+            elif render.varietyType == RenderType.String3D:
+                size += 20 + len(render.variety.text)
+
+        builder = Builder(size)
+        builder.Finish(render_group.Pack(builder))
+        self.send_flatbuffer(builder, SocketDataType.RENDER_GROUP)
+
+    def remove_render_group(self, group_id: int):
+        builder = Builder(4)
+        msg = RemoveRenderGroupT()
+        msg.id = group_id
+        builder.Finish(msg.Pack(builder))
+        self.send_flatbuffer(builder, SocketDataType.REMOVE_RENDER_GROUP)
 
     def start_match(self, match_settings: MatchSettingsT):
         builder = Builder(400)

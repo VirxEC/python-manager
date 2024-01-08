@@ -31,6 +31,11 @@ class PythonBotRunner:
         self.game_interface.match_settings_handlers.append(self.handle_match_settings)
         self.game_interface.field_info_handlers.append(self.handle_field_info)
         self.game_interface.packet_handlers.append(self.handle_packet)
+        self.bot._add_game_state_func(self.game_interface.send_game_state)
+        self.bot.renderer._add_remove_render_group_func(
+            self.game_interface.remove_render_group
+        )
+        self.bot.renderer._add_render_group_func(self.game_interface.send_render_group)
 
     def run(self):
         self.game_interface.connect_and_run(True, True, True)

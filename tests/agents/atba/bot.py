@@ -3,12 +3,21 @@ import math
 from rlbot.agents.standalone import Controller, StandaloneBot
 from rlbot.flat.GameStateType import GameStateType
 from rlbot.flat.GameTickPacket import GameTickPacketT
+from rlbot.flat.TextHAlign import TextHAlign
+from rlbot.flat.Vector3 import Vector3T
+from rlbot.game_manager.rendering import RenderMessage
+from rlbot.utils import state_set
+from rlbot.utils.better_flat_init import Vector3
 
 
 class Vector2:
     def __init__(self, x=0.0, y=0.0):
         self.x = float(x)
         self.y = float(y)
+
+    @staticmethod
+    def from_vector3t(vec3: Vector3T):
+        return Vector2(vec3.x, vec3.y)
 
     def __add__(self, val):
         return Vector2(self.x + val.x, self.y + val.y)
@@ -44,38 +53,75 @@ def get_car_facing_vector(car):
 
 
 class Atba(StandaloneBot):
+    state_setting = False
+    rendering = False
+
     def initialize_agent(self):
         self.logger.info("Initializing agent!")
         self.controller = Controller()
         num_boost_pads = len(self.get_field_info().boostPads)
         self.logger.info(f"There are {num_boost_pads} boost pads on the field.")
+        self.renderer.begin_rendering("custom one-time rendering group")
+        self.renderer.add_render(
+            RenderMessage.PolyLine3D(
+                [
+                    Vector3(1000, 1000, 100),
+                    Vector3(1000, -1000, 500),
+                    Vector3(-1000, -1000, 1000),
+                ],
+                RenderMessage.yellow,
+            )
+        )
+        self.renderer.end_rendering()
 
-    def get_output(self, game_tick_packet: GameTickPacketT) -> Controller:
-        if game_tick_packet.gameInfo.gameStateType not in { GameStateType.Active, GameStateType.Kickoff }:
+    def get_output(self, packet: GameTickPacketT) -> Controller:
+        if self.rendering:
+            self.test_rendering(packet)
+
+        if packet.gameInfo.gameStateType not in {
+            GameStateType.Active,
+            GameStateType.Kickoff,
+        }:
             return self.controller
 
-        ball_location = Vector2(
-            game_tick_packet.ball.physics.location.x,
-            game_tick_packet.ball.physics.location.y,
-        )
+        if self.state_setting:
+            self.test_state_setting(packet.ball.physics.velocity)
 
-        my_car = game_tick_packet.players[self.index]
-        car_location = Vector2(my_car.physics.location.x, my_car.physics.location.y)
+        ball_location = Vector2.from_vector3t(packet.ball.physics.location)
+
+        my_car = packet.players[self.index]
+        car_location = Vector2.from_vector3t(my_car.physics.location)
         car_direction = get_car_facing_vector(my_car)
         car_to_ball = ball_location - car_location
 
         steer_correction_radians = car_direction.correction_to(car_to_ball)
 
-        if steer_correction_radians > 0:
-            # Positive radians in the unit circle is a turn to the left.
-            turn = -1.0  # Negative value for a turn to the left.
-        else:
-            turn = 1.0
-
-        self.controller.steer = turn
+        self.controller.steer = -steer_correction_radians
         self.controller.throttle = 1
 
         return self.controller
+
+    def test_state_setting(self, ball_velocity: Vector3T):
+        game_state = state_set.GameState(
+            state_set.BallState(
+                state_set.Physics(velocity=state_set.Vector3(z=ball_velocity.z + 10))
+            )
+        )
+        self.set_game_state(game_state)
+
+    def test_rendering(self, packet: GameTickPacketT):
+        self.renderer.begin_rendering()
+        text = "Hello world!\nI hope I'm centered!"
+        self.renderer.add_render(
+            RenderMessage.String3D(
+                packet.players[self.index].physics.location,
+                text,
+                RenderMessage.yellow,
+                1.5,
+                horizontal_alignment=TextHAlign.Center,
+            )
+        )
+        self.renderer.end_rendering()
 
 
 if __name__ == "__main__":

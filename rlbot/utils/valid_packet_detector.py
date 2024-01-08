@@ -1,14 +1,10 @@
 import time
 
-from rlbot.flat.DesiredCarState import DesiredCarStateT
-from rlbot.flat.DesiredGameState import DesiredGameStateT
-from rlbot.flat.DesiredPhysics import DesiredPhysicsT
-from rlbot.flat.Float import FloatT
 from rlbot.flat.GameStateType import GameStateType
 from rlbot.flat.MatchSettings import MatchSettingsT
 from rlbot.flat.PlayerClass import PlayerClass
-from rlbot.flat.Vector3Partial import Vector3PartialT
 from rlbot.game_manager.data_reporter import SocketDataReporter
+from rlbot.utils.state_set import CarState, GameState, Physics, Vector3
 from rlbot.utils.logging import get_logger
 
 
@@ -57,14 +53,7 @@ class ValidPacketDetector:
 
                     for k, player_info in enumerate(packet.players):
                         if player_info.spawnId > 0:
-                            velocity = Vector3PartialT()
-                            velocity.z = FloatT.InitFromObj(500)
-                            physics = DesiredPhysicsT()
-                            physics.velocity = velocity
-                            car_state = DesiredCarStateT()
-                            car_state.physics = physics
-
-                            car_states[k] = car_state
+                            car_states[k] = CarState(Physics(velocity=Vector3(z=500)))
                             max_index = k
 
                     if len(car_states) > 0:
@@ -72,10 +61,10 @@ class ValidPacketDetector:
                             "Scooting bots out of the way to allow more to spawn!"
                         )
 
-                        game_state = DesiredGameStateT()
+                        game_state = GameState()
                         game_state.carStates = []
 
-                        empty_offset = DesiredCarStateT()
+                        empty_offset = CarState()
                         for i in range(0, max_index + 1):
                             if i in car_states:
                                 game_state.carStates.append(car_states[i])

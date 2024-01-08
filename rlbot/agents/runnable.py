@@ -1,14 +1,25 @@
-from typing import Optional
+from typing import Callable, Optional
+from rlbot.flat.DesiredGameState import DesiredGameStateT
 from rlbot.flat.FieldInfo import FieldInfoT
 from rlbot.flat.MatchSettings import MatchSettingsT
+from rlbot.game_manager.rendering import RenderingManager
 
 
 class Runnable:
     def __init__(self, name: str):
         self.name = name
         self.spawn_id: Optional[int] = None
+
         self.match_settings = MatchSettingsT()
         self.field_info = FieldInfoT()
+        self.renderer = RenderingManager()
+
+        self._set_game_state_func: Callable[[DesiredGameStateT], None] = lambda _: None
+
+    def _add_game_state_func(
+        self, set_game_state_func: Callable[[DesiredGameStateT], None]
+    ):
+        self._set_game_state_func = set_game_state_func
 
     def _handle_match_settings(self, match_settings: MatchSettingsT):
         self.match_settings = match_settings
@@ -27,6 +38,12 @@ class Runnable:
         Contains info about the map, such as the locations of boost pads and goals.
         """
         return self.field_info
+
+    def set_game_state(self, game_state: DesiredGameStateT):
+        """
+        Sets the game to the given desired state.
+        """
+        self._set_game_state_func(game_state)
 
     def initialize_agent(self):
         """
