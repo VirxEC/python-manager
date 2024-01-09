@@ -106,3 +106,5 @@ class GameState(DesiredGameStateT):
         self.carStates = cars # type: ignore
         self.gameInfoState = game_info
         self.consoleCommands = console_commands # type: ignore
+        # Not supported
+        self.boostStates = []

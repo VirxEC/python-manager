@@ -13,7 +13,7 @@ if __name__ == "__main__":
         match_manager.start_match()
 
         print("Waiting before shutdown...")
-        sleep(30)
+        sleep(3)
     except KeyboardInterrupt:
         print("Shutting down early due to interrupt")
     except Exception as e:

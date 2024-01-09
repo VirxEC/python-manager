@@ -1,5 +1,5 @@
 from enum import IntEnum
-from socket import SHUT_WR, socket, timeout
+from socket import socket, timeout
 from threading import Thread
 from time import sleep, time
 from typing import Callable
@@ -7,8 +7,6 @@ from typing import Callable
 from flatbuffers.builder import Builder
 
 from rlbot.flat import ReadyMessage
-from rlbot.flat.RemoveRenderGroup import RemoveRenderGroupT
-from rlbot.flat.RenderType import RenderType
 from rlbot.flat.BallPrediction import BallPrediction, BallPredictionT
 from rlbot.flat.ControllerState import ControllerStateT
 from rlbot.flat.DesiredGameState import DesiredGameStateT
@@ -22,7 +20,9 @@ from rlbot.flat.PlayerInputChange import PlayerInputChangeT
 from rlbot.flat.PlayerSpectate import PlayerSpectateT
 from rlbot.flat.PlayerStatEvent import PlayerStatEventT
 from rlbot.flat.QuickChat import QuickChat, QuickChatT
+from rlbot.flat.RemoveRenderGroup import RemoveRenderGroupT
 from rlbot.flat.RenderGroup import RenderGroupT
+from rlbot.flat.RenderType import RenderType
 from rlbot.utils.logging import get_logger
 
 # We can connect to RLBot.exe on this port.
@@ -30,6 +30,7 @@ RLBOT_SOCKETS_PORT = 23234
 
 
 class SocketDataType(IntEnum):
+    NONE = 0
     GAME_TICK_PACKET = 1
     FIELD_INFO = 2
     MATCH_SETTINGS = 3
@@ -41,6 +42,9 @@ class SocketDataType(IntEnum):
     BALL_PREDICTION = 9
     READY_MESSAGE = 10
     MESSAGE_PACKET = 11
+
+
+MAX_SIZE_2_BYTES = 2**16 - 1
 
 
 def int_to_bytes(val: int) -> bytes:
@@ -59,8 +63,6 @@ class SocketMessage:
 
 def read_from_socket(s: socket) -> SocketMessage:
     type_int = int_from_bytes(s.recv(2))
-    if type_int == 0:
-        raise EOFError()
     data_type = SocketDataType(type_int)
     size = int_from_bytes(s.recv(2))
     data = s.recv(size)
@@ -91,11 +93,20 @@ class SocketRelay:
         ] = []
         self.raw_handlers: list[Callable[[SocketMessage], None]] = []
 
+    def __del__(self):
+        self.socket.close()
+
     def send_flatbuffer(self, builder: Builder, data_type: SocketDataType):
         self.send_bytes(builder.Output(), data_type)
 
     def send_bytes(self, byte_array: bytearray, data_type: SocketDataType):
         size = len(byte_array)
+        if size > MAX_SIZE_2_BYTES:
+            self.logger.error(
+                f"Couldn't send a {data_type} message because it was too big!"
+            )
+            return
+
         message = int_to_bytes(data_type) + int_to_bytes(size) + byte_array
         self.socket.sendall(message)
 
@@ -212,31 +223,8 @@ class SocketRelay:
             while self._should_continue:
                 incoming_message = read_from_socket(self.socket)
                 self.handle_incoming_message(incoming_message)
-        except EOFError:
-            self.logger.info("Socket manager received unexpected EOF from core, closing socket.")
-            self.socket.close()
-            return
-
-        self.socket.shutdown(SHUT_WR)
-
-        # Now wait for the other end to send its own shutdown signal.
-        try:
-            self.socket.settimeout(0.1)
-            start_time = time()
-
-            while True:
-                read_from_socket(self.socket)
-
-                if time() - start_time > 5:
-                    self.logger.warn(
-                        "Socket manager did not receive EOF from core. Forcefully closing socket."
-                    )
-                    break
-        except EOFError:
-            # We've succeeded with our graceful shutdown.
-            pass
-
-        self.socket.close()
+        except:
+            self.logger.error("Socket manager disconnected unexpectedly!")
 
     def make_ready_message(
         self,
@@ -258,7 +246,9 @@ class SocketRelay:
     def handle_incoming_message(self, incoming_message: SocketMessage):
         for raw_handler in self.raw_handlers:
             raw_handler(incoming_message)
-        if (
+        if incoming_message.type == SocketDataType.NONE:
+            self._should_continue = False
+        elif (
             incoming_message.type == SocketDataType.GAME_TICK_PACKET
             and len(self.packet_handlers) > 0
         ):
@@ -337,4 +327,4 @@ class SocketRelay:
                         )
 
     def disconnect(self):
-        self._should_continue = False
+        self.send_bytes(bytearray([1]), SocketDataType.NONE)

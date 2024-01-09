@@ -11,8 +11,8 @@ class Vector3(Vector3T):
         self.y = y
         self.z = z
 
-    def __mul__(self, other: float):
-        return Vector3(self.x * other, self.y * other, self.z * other)
+    def __mul__(self, other: "Vector3"):
+        return Vector3(self.x * other.x, self.y * other.y, self.z * other.z)
 
     def __add__(self, other: "Vector3"):
         return Vector3(self.x + other.x, self.y + other.y, self.z + other.z)
@@ -38,7 +38,7 @@ class ColoredWireframe:
     """
 
     def __init__(
-        self, file_path: str, scale: float = 1, position: Vector3 = Vector3(0, 0, 0)
+        self, file_path: str, scale: Vector3 = Vector3(1, 1, 1), position: Vector3 = Vector3(0, 0, 0)
     ):
         self.groups: list[ColoredPolygonGroup] = list()
 
@@ -58,7 +58,7 @@ class ColoredWireframe:
             if line.startswith("v "):
                 v = line.split(" ")
                 vertex = (
-                    Vector3(-float(v[3]), float(v[1]), float(v[2])) * scale + position
+                    Vector3(float(v[3]), float(v[1]), float(v[2])) * scale + position
                 )
                 vertices.append(vertex)
 
@@ -120,4 +120,4 @@ def unzip_and_build_obj() -> ColoredWireframe:
     dirpath = os.path.dirname(os.path.realpath(__file__))
     with zipfile.ZipFile(dirpath + "/nothing.zip", "r") as zip_ref:
         zip_ref.extractall(dirpath)
-    return ColoredWireframe(dirpath + "/zerotwo.obj", 70, Vector3(3500, 0, 0))
+    return ColoredWireframe(dirpath + "/zerotwo.obj", Vector3(70, 70, 70), Vector3(-3500, 0, 0))

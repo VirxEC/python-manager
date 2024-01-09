@@ -27,36 +27,33 @@ class TestSpawner:
         self.standalone_bot_config = standalone_bot_config
         self.player_config: Optional[PlayerConfigurationT] = None
         self.match_manager: Optional[MatchManager] = None
-        self.spawn_id = self.create_spawn_id()
         self.player_index = standalone_bot_config.player_index or 0
         self.team = standalone_bot_config.team or 0
         self.name = self.get_bot_name()
+        self.spawn_id = self.create_spawn_id()
 
     def get_bot_name(self) -> str:
-        if self.standalone_bot_config.name is not None:
-            print(
-                f"Spawning your bot with the name {self.standalone_bot_config.name} because no config path was provided!"
-            )
-            return self.standalone_bot_config.name
-        print(
-            f"Spawning your bot with the name {self.python_file.name} because no config path was provided!"
+        name = (
+            self.python_file.name
+            if self.standalone_bot_config.name is None
+            else self.standalone_bot_config.name
         )
-        return self.python_file.name
+        print(f"Spawning your bot with the name {name} because no name was provided!")
+
+        return name
 
     def create_spawn_id(self):
         """
-        We want a spawn id unique to the python file which will be stable across re-runs.
+        We want a spawn id unique to the bot which will be stable across re-runs.
         """
-        hash = hashlib.sha1(str(self.python_file).encode("utf-8"))
-        number_form = int(hash.hexdigest(), 16)
-        return number_form % FLATBUFFER_MAX_INT
+        return hash(self.name) % FLATBUFFER_MAX_INT
 
     def create_player_config(self) -> PlayerConfigurationT:
         player_config = PlayerConfigurationT()
         player_config.variety = RLBotPlayerT()
         player_config.varietyType = PlayerClass.RLBotPlayer
         player_config.name = self.name
-        player_config.team = 0
+        player_config.team = self.team
         player_config.spawnId = self.spawn_id
         player_config.loadout = PlayerLoadoutT()
         player_config.loadout.loadoutPaint = LoadoutPaintT()
@@ -70,7 +67,7 @@ class TestSpawner:
         match_settings.playerConfigurations = [self.player_config]
         match_settings.gameMode = GameMode.Soccer
         match_settings.gameMapUpk = "Stadium_P"
-        match_settings.existingMatchBehavior = ExistingMatchBehavior.Continue_And_Spawn
+        match_settings.existingMatchBehavior = ExistingMatchBehavior.Restart
         match_settings.mutatorSettings = MutatorSettingsT()
         match_settings.enableStateSetting = True
         match_settings.enableRendering = True
@@ -81,15 +78,6 @@ class TestSpawner:
 
         if self.match_manager is None:
             self.match_manager = MatchManager()
-
-            rlbot_gateway_process, _ = gateway.find_existing_process()
-            if rlbot_gateway_process is None:
-                # RLBot.exe is not running yet, we should use the Restart behavior.
-                # That avoids a situation where dead cars start piling up when
-                # RLBot.exe gets killed and re-launched over and over and lacks context
-                # to clean up previous cars.
-                match_settings.existingMatchBehavior = ExistingMatchBehavior.Restart
-
             self.match_manager.main_executable_path = Path(
                 self.standalone_bot_config.main_executable_path
             )

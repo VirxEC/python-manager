@@ -39,6 +39,7 @@ class PythonBotRunner:
 
     def run(self):
         self.game_interface.connect_and_run(True, True, True)
+        del self.game_interface
 
     def handle_packet(self, packet: GameTickPacketT):
         if not self.initialized_bot:
@@ -64,32 +65,14 @@ class PythonBotRunner:
 
 def run_bot(agent_class: Type[StandaloneBot]):
     config = StandaloneArgParser(sys.argv)
+
     python_file = inspect.getfile(agent_class)
-
-    spawn_id = config.spawn_id
-    player_index = config.player_index
-    team = config.team
-    name = config.name
-
-    if config.is_missing_args:
-        # This process must not have been created by the RLBot framework, so this is probably
-        # a developer doing some testing who did not pass all the params. Take it upon ourselves
-        # to fire up the game if necessary.
-        print(
-            f"############################################################################################"
-        )
-        print(
-            f"Args are missing, so we will assume this is a dev workflow and insert the bot into the game!"
-        )
-        print(
-            f"############################################################################################"
-        )
-        test_spawner = TestSpawner(Path(python_file), config)
-        test_spawner.spawn_bot()
-        spawn_id = test_spawner.spawn_id
-        player_index = test_spawner.player_index
-        team = test_spawner.team
-        name = test_spawner.name
+    test_spawner = TestSpawner(Path(python_file), config)
+    test_spawner.spawn_bot()
+    spawn_id = test_spawner.spawn_id
+    player_index = test_spawner.player_index
+    team = test_spawner.team
+    name = test_spawner.name
 
     python_bot_runner = PythonBotRunner(agent_class, name, team, player_index, spawn_id)
     python_bot_runner.run()
