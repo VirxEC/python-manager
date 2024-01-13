@@ -8,12 +8,13 @@ if __name__ == "__main__":
 
     current_directory = Path(__file__).absolute().parent
     match_manager.load_config_from_file(current_directory / "rlbot.toml")
+
     try:
         match_manager.connect_to_game()
         match_manager.start_match()
 
         print("Waiting before shutdown...")
-        sleep(3)
+        sleep(12)
     except KeyboardInterrupt:
         print("Shutting down early due to interrupt")
     except Exception as e:

@@ -8,7 +8,7 @@ main_executable_path = "../core/RLBotCS/bin/Release/"
 
 [match]
 # Number of bots/players which will be spawned.  We support up to max 64.
-num_participants = 3
+num_participants = 4
 # What game mode the game should load.
 # Accepted values are "Soccer", "Hoops", "Dropshot", "Hockey", "Rumble", "Heatseeker", "Gridiron"
 game_mode = "Soccer"
@@ -83,3 +83,7 @@ team = 1
 [[bots]]
 config = "tests/agents/atba/atba.toml"
 team = 0
+
+[[bots]]
+type = "human"
+team = 1

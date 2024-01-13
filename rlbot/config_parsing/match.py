@@ -268,11 +268,13 @@ FLATBUFFER_MAX_INT = 2**31 - 1
 def write_player_configutation(
     player_config: dict, builder: Builder, name_dict: dict
 ) -> int:
-    bot_config_path = player_config.get(CONFIG)
-    if bot_config_path is None:
-        raise Exception("Player config missing 'config' key!")
-    bot_config_path = Path(bot_config_path)
-    bot_config = load_config_file(bot_config_path)
+    raw_bot_config_path = player_config.get(CONFIG)
+    if raw_bot_config_path is not None:
+        bot_config_path = Path(raw_bot_config_path)
+        bot_config = load_config_file(bot_config_path)
+    else:
+        bot_config_path = None
+        bot_config = {}
     settings = bot_config.get(SETTINGS_HEADER, {})
 
     deduped_name = get_sanitized_bot_name(name_dict, settings.get(NAME, ""))
@@ -280,7 +282,7 @@ def write_player_configutation(
     team = player_config.get(TEAM, 0)
 
     looks_path = settings.get(LOOKS_CONFIG)
-    if looks_path is None:
+    if looks_path is None or bot_config_path is None:
         loadout_config = DEFAULT_LOOKS_CONFIG
     else:
         loadout_config = load_config_file(bot_config_path.parent / looks_path)
@@ -293,12 +295,17 @@ def write_player_configutation(
         variety = PlayerClass.RLBotPlayer
         RLBotPlayer.RLBotPlayerStart(builder)
         player = RLBotPlayer.RLBotPlayerEnd(builder)
+
+        if bot_config_path is None:
+            raise Exception("Player config missing 'config' key!")
     elif bot_type == "psyonix":
         variety = PlayerClass.PsyonixBotPlayer
         PsyonixBotPlayer.PsyonixBotPlayerStart(builder)
         bot_skill = player_config.get(SKILL, 1.0)
         PsyonixBotPlayer.PsyonixBotPlayerAddBotSkill(builder, bot_skill)
         player = PsyonixBotPlayer.PsyonixBotPlayerEnd(builder)
+
+        # TODO: Load random Psyonix bot config
     elif bot_type == "human":
         variety = PlayerClass.HumanPlayer
         HumanPlayer.HumanPlayerStart(builder)
