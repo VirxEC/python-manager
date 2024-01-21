@@ -12,7 +12,7 @@ from rlbot.config_parsing.bots import (
     write_player_loadout,
 )
 from rlbot.config_parsing.mutators import MUTATORS_HEADER, write_mutator_settings
-from rlbot.config_parsing.util import index_or_zero, load_config_file, load_toml_config
+from rlbot.config_parsing.util import index_or_zero, load_config_file
 from rlbot.flat import (
     HumanPlayer,
     MatchSettings,
@@ -25,7 +25,6 @@ from rlbot.game_manager.preference import (
     DEFAULT_LAUNCHER_PREFERENCE,
     GameLauncherPreference,
 )
-from rlbot.utils.logging import get_logger
 
 DEFAULT_CONFIG_LOCATION = Path(os.path.realpath("./rlbot.toml"))
 

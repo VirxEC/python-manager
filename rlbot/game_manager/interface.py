@@ -1,8 +1,9 @@
+import logging
 from enum import IntEnum
 from socket import socket, timeout
 from threading import Thread
-from time import sleep, time
-from typing import Callable
+from time import sleep
+from typing import Callable, Optional
 
 from flatbuffers.builder import Builder
 
@@ -70,9 +71,9 @@ def read_from_socket(s: socket) -> SocketMessage:
 
 
 class SocketRelay:
-    def __init__(self, connection_timeout: float = 120):
+    def __init__(self, connection_timeout: float = 120, logger: Optional[logging.Logger] = None):
         self.connection_timeout = connection_timeout
-        self.logger = get_logger("socket_man")
+        self.logger = get_logger("socket_man") if logger is None else logger
         self.socket = socket()
         self.is_connected = False
         self._should_continue = True

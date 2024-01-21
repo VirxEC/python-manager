@@ -30,7 +30,7 @@ class CustomFormatter(logging.Formatter):
         return formatter.format(record)
 
 
-def get_logger(logger_name: str, log_creation: bool=True):
+def get_logger(logger_name: str, log_creation: bool=True) -> logging.Logger:
     if logger_name == DEFAULT_LOGGER_NAME and DEFAULT_LOGGER is not None:
         return DEFAULT_LOGGER
 
